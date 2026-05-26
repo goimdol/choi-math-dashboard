@@ -940,9 +940,7 @@ async function handleExpFileNew(input){
       let rows=[];
       if(isCSV){
         const text=new TextDecoder('utf-8').decode(buf);
-        rows=text.split(/
-?
-/).map(l=>l.split(/,|	/).map(c=>c.replace(/^"|"$/g,'').trim()));
+        rows=text.split(/\r?\n/).map(l=>l.split(/,|\t/).map(c=>c.replace(/^"|"$/g,'').trim()));
       } else {
         const wb=XLSX.read(new Uint8Array(buf),{type:'array'});
         const ws=wb.Sheets[wb.SheetNames[0]];
@@ -1142,4 +1140,142 @@ function initT2(){
 function buildRevGrid(){}
 function buildAcct(){}
 
+// ══ T3 강사 보수 ══
+function getSal(){return ld("sal",{});}
+function setSal(d){sv("sal",d);}
+function loadSal(){
+  const t=$("salT")?$("salT").value:"";
+  const m=$("t3m")?$("t3m").value:"1";
+  const yr=curYr;
+  const sal=getSal()[yr]||{};
+  const s=sal[m+"-"+t]||{};
+  if($("salBase"))$("salBase").value=s.base?fmt(s.base):"";
+}
+function saveSal(){
+  const t=$("salT")?$("salT").value:"";
+  const m=$("t3m")?$("t3m").value:"1";
+  const yr=curYr;
+  const raw=$("salBase")?$("salBase").value.replace(/[^0-9]/g,""):"";
+  const base=parseInt(raw)||0;
+  const sal=getSal();
+  if(!sal[yr])sal[yr]={};
+  sal[yr][m+"-"+t]={base};
+  setSal(sal);
+  rT3();
+}
+function onSalInput(el){
+  const pos=el.selectionStart,oldLen=el.value.length;
+  const raw=el.value.replace(/[^0-9]/g,"");
+  const num=parseInt(raw)||0;
+  el.value=num?num.toLocaleString("ko-KR"):"";
+  const newLen=el.value.length;
+  try{el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));}catch(e){}
+}
+function rT3(){
+  const mSel=$("t3m");
+  if(!mSel){return;}
+  if(!mSel.options.length){
+    for(let i=1;i<=12;i++){const o=document.createElement("option");o.value=i;o.textContent=i+"월";mSel.appendChild(o);}
+  }
+  const m=mSel.value;
+  const yr=curYr;
+  const sal=getSal()[yr]||{};
+  const rows=TC.map(t=>{const s=sal[m+"-"+t]||{};const base=s.base||0;const d=Math.round(base*0.033);return{t,base,d,net:base-d};});
+  const total=rows.reduce((a,r)=>a+r.net,0);
+  const totalPre=rows.reduce((a,r)=>a+r.base,0);
+  if($("t3tot"))$("t3tot").textContent=fmt(total)+"원";
+  if($("t3totPre"))$("t3totPre").textContent=fmt(totalPre)+"원";
+  const yt=Array.from({length:12},(_,i)=>{const mi=i+1;return TC.reduce((a,t)=>{const s=sal[mi+"-"+t]||{};const b=s.base||0;return a+(b-Math.round(b*0.033));},0);});
+  const yrTotal=yt.reduce((a,b)=>a+b,0);
+  if($("t3totYr"))$("t3totYr").textContent=fmt(yrTotal)+"원";
+  if($("t3tb"))$("t3tb").innerHTML=rows.map(({t,base,d,net})=>`<tr onclick="if($('salT'))$('salT').value='${t}';loadSal()">
+    <td>${t}</td><td>${fmt(base)}</td>
+    <td style="color:var(--red)">${fmt(d)}</td>
+    <td style="font-weight:700;color:${net>0?"var(--navy)":"var(--text3)"}">${fmt(net)}</td>
+  </tr>`).join("");
+  const mx=Math.max(...yt,1);const cm=+m;
+  if($("t3ch"))$("t3ch").innerHTML=yt.map((v,i)=>{
+    const lbl=v?`<span style="font-size:8px;font-weight:700;color:${i+1===cm?"var(--navy)":"var(--text2)"}">${(v/10000).toFixed(0)}만</span>`:"";
+    const bar=v?`<div class="b" style="background:${i+1===cm?"var(--navy)":"var(--border2)"};height:${Math.max(v/mx*70,3)}px;width:100%"></div>`:"";
+    return`<div class="bg"><div class="bi" style="height:85px;flex-direction:column;align-items:center;justify-content:flex-end">${lbl}${bar}</div><span class="bl ${i+1===cm?"hi":""}">${i+1}</span></div>`;
+  }).join("");
+  if($("t3TcSel")&&$("t3TcSel").options.length===0){
+    TC.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;$("t3TcSel").appendChild(o);});
+  }
+  rT3Tc();
+  loadSal();
+}
+function rT3Tc(){
+  const t=$("t3TcSel")?$("t3TcSel").value:TC[0];
+  const yr=curYr;const sal=getSal()[yr]||{};
+  const rows=Array.from({length:12},(_,i)=>{const mi=i+1,s=sal[mi+"-"+t]||{};const base=s.base||0,d=Math.round(base*0.033);return{mi,base,d,net:base-d};});
+  const yrTot=rows.reduce((a,r)=>a+r.net,0);
+  if($("t3TcBody"))$("t3TcBody").innerHTML=rows.map(({mi,base,d,net})=>`<tr>
+    <td style="color:var(--text2)">${mi}월</td>
+    <td>${fmt(base)}</td><td style="color:var(--red)">${fmt(d)}</td>
+    <td style="font-weight:700;color:${net>0?"var(--navy)":"var(--text3)"}">${fmt(net)}</td>
+  </tr>`).join("");
+  if($("t3TcYrTot"))$("t3TcYrTot").textContent=fmt(yrTot)+"원";
+  if($("t3TcCh")){
+    const nets=rows.map(r=>r.net);const mx2=Math.max(...nets,1);
+    $("t3TcCh").innerHTML=rows.map(({mi,net})=>{
+      const h=net?Math.max(net/mx2*70,3):0;
+      const lbl=net?`<span style="font-size:8px;font-weight:700;color:var(--navy)">${(net/10000).toFixed(0)}만</span>`:"";
+      const bar=net?`<div class="b" style="background:var(--navy);height:${h}px;width:100%;border-radius:2px 2px 0 0"></div>`:"";
+      return`<div class="bg"><div class="bi" style="height:85px;flex-direction:column;align-items:center;justify-content:flex-end">${lbl}${bar}</div><span class="bl">${mi}</span></div>`;
+    }).join("");
+  }
+}
 
+// ══ T5 캘린더·T4 메모장 iframe ══
+function initScore(){
+  const saved=localStorage.getItem(SCORE_URL_KEY)||SCORE_DEFAULT_URL;
+  if(saved){
+    $("scoreIframe").src=saved;
+    $("scoreWrap").style.display="block";
+    $("scoreHolder").style.display="none";
+  }
+}
+function connectScore(){
+  const url=($("scoreUrl").value||"").trim();
+  if(!url||!url.startsWith("http")){alert("올바른 URL을 입력해주세요");return;}
+  localStorage.setItem(SCORE_URL_KEY,url);
+  $("scoreIframe").src=url;
+  $("scoreHolder").style.display="none";
+  $("scoreWrap").style.display="block";
+}
+function loadScoreLocal(){
+  const inp=document.createElement("input");inp.type="file";inp.accept=".html";
+  inp.onchange=()=>{if(inp.files[0]){$("scoreIframe").src=URL.createObjectURL(inp.files[0]);$("scoreHolder").style.display="none";$("scoreWrap").style.display="block";}};
+  inp.click();
+}
+
+// ══ T7 핀 관리 ══
+let pinVisible=false;
+function togglePin(){
+  pinVisible=!pinVisible;
+  if($("curPinView"))$("curPinView").textContent=pinVisible?PIN:"****";
+  if($("pinToggleBtn"))$("pinToggleBtn").textContent=pinVisible?"숨기기":"보기";
+}
+function changePin(){
+  const p1=$("newPin1")?$("newPin1").value.trim():"";
+  const p2=$("newPin2")?$("newPin2").value.trim():"";
+  const msg=$("pinChgMsg");
+  if(p1.length!==4){if(msg){msg.style.color="var(--red)";msg.textContent="4자리 숫자를 입력해주세요";}return;}
+  if(p1!==p2){if(msg){msg.style.color="var(--red)";msg.textContent="핀번호가 일치하지 않습니다";}return;}
+  PIN=p1;
+  localStorage.setItem("dash_pin",p1);
+  if(msg){msg.style.color="var(--green)";msg.textContent="✓ 핀번호가 변경되었습니다";}
+  if($("newPin1"))$("newPin1").value="";
+  if($("newPin2"))$("newPin2").value="";
+  if($("curPinView"))$("curPinView").textContent=pinVisible?PIN:"****";
+  setTimeout(()=>{if(msg)msg.textContent="";},3000);
+}
+function initPinMgmt(){
+  if($("curPinView"))$("curPinView").textContent="****";
+  pinVisible=false;
+}
+
+</script>
+</body>
+</html>
