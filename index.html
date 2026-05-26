@@ -756,9 +756,9 @@ function go(id,btn){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
   $(id).classList.add("on");btn.classList.add("on");
   if(id==="t6"){
-    const saved=localStorage.getItem(SCORE_URL_KEY)||SCORE_DEFAULT_URL;
-    if(saved){$("scoreWrap").style.display="block";$("scoreHolder").style.display="none";}
-    else{$("scoreWrap").style.display="none";$("scoreHolder").style.display="block";}
+    $("scoreIframe").src=SCORE_DEFAULT_URL;
+    $("scoreWrap").style.display="block";
+    $("scoreHolder").style.display="none";
   }
 }
 
@@ -1414,12 +1414,11 @@ function rT3Tc(){
 
 // ══ T5 캘린더·T4 메모장 iframe ══
 function initScore(){
-  const saved=localStorage.getItem(SCORE_URL_KEY)||SCORE_DEFAULT_URL;
-  if(saved){
-    $("scoreIframe").src=saved;
-    $("scoreWrap").style.display="block";
-    $("scoreHolder").style.display="none";
-  }
+  // 항상 최신 URL 사용 (localStorage 이전 URL 무시)
+  localStorage.setItem(SCORE_URL_KEY, SCORE_DEFAULT_URL);
+  $("scoreIframe").src=SCORE_DEFAULT_URL;
+  $("scoreWrap").style.display="block";
+  $("scoreHolder").style.display="none";
 }
 function connectScore(){
   const url=($("scoreUrl").value||"").trim();
