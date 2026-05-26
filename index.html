@@ -995,7 +995,7 @@ function handleExpFile(input){
 function clearExpParse(){$("expParseCard").style.display="none";$("expParseTable").innerHTML="";$("uploadStatus").textContent="";}
 
 // ══ T6 성적관리 연결 ══
-const SCORE_URL_KEY="score_app_url";const SCORE_DEFAULT_URL="https://choi-math-score.netlify.app/";const SCORE_DEFAULT_URL="https://choi-math-score.netlify.app/";
+const SCORE_URL_KEY="score_app_url";const SCORE_DEFAULT_URL="https://choi-math-score.netlify.app/";
 function initScore(){
   const saved=localStorage.getItem(SCORE_URL_KEY)||SCORE_DEFAULT_URL;
   if(saved){
