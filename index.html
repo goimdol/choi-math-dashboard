@@ -266,6 +266,7 @@ textarea{resize:vertical;min-height:64px}
     </select>
     <div class="fb-dot" id="fbDot"></div>
     <span class="fb-label" id="fbLbl">연결 중</span>
+    <button onclick="doLogout()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;letter-spacing:0.3px">로그아웃</button>
   </div>
 </header>
 
@@ -480,6 +481,17 @@ textarea{resize:vertical;min-height:64px}
           <div class="card-title" style="margin:0">보수 입력</div>
           <select id="t3m" onchange="rT3()" style="width:80px;margin:0"></select>
         </div>
+        <!-- 자동연동 버튼 -->
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#1E40AF;margin-bottom:6px">🔗 거래내역 자동 불러오기</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span style="font-size:11px;color:var(--text2)">기준일:</span>
+            <input type="number" id="salCutDay" value="5" min="1" max="28" style="width:50px;margin:0;font-size:11px;padding:3px 6px" oninput="localStorage.setItem('sal_cut_day',this.value)">
+            <span style="font-size:11px;color:var(--text3)">일 이전 지급 → 전월 보수</span>
+          </div>
+          <button class="btn-p" style="width:100%;font-size:11px;padding:6px" onclick="autoImportSal()">📥 거래내역에서 자동 불러오기</button>
+          <div id="autoImportMsg" style="font-size:11px;margin-top:6px;text-align:center"></div>
+        </div>
         <label class="lbl">강사</label><select id="salT" onchange="loadSal()"></select>
         <label class="lbl">기본급 (원)</label><input type="number" id="sBase" placeholder="0" oninput="upSP()">
         <div id="salPre" style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;font-size:12px;font-weight:600;color:#065F46">
@@ -691,9 +703,9 @@ function initApp(){
   $("t1tc").innerHTML=`<option>전체</option>`+TC.map(t=>`<option>${t}</option>`).join("");
   $("sDt").value=td();
   setGrp("elem");
-  rT1();initT2();rT3();initScore();initPinMgmt();
+  rT1();initT2();initT3();initScore();initPinMgmt();
 }
-function setYr(){curYr=$("yrSel").value;t2RevData=JSON.parse(localStorage.getItem("choi_rev_"+curYr)||"{}");loadT2ExpRows();rT1();renderT2();rT3();}
+function setYr(){curYr=$("yrSel").value;t2RevData=JSON.parse(localStorage.getItem("choi_rev_"+curYr)||"{}");loadT2ExpRows();rT1();renderT2();initT3();}
 function go(id,btn){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
@@ -1276,6 +1288,73 @@ function initPinMgmt(){
   pinVisible=false;
 }
 
+
+// ══ 강사 보수 자동 연동 ══
+function autoImportSal(){
+  const msg=$("autoImportMsg");
+  if(!t2ExpRows||!t2ExpRows.length){
+    msg.style.color="var(--red)";
+    msg.textContent="먼저 매출·순이익 탭에서 거래내역을 업로드해주세요";
+    setTimeout(()=>msg.textContent="",3000);
+    return;
+  }
+  // 강사보수 카테고리만 필터
+  const salRows=t2ExpRows.filter(r=>r.cat==="강사보수");
+  if(!salRows.length){
+    msg.style.color="var(--red)";
+    msg.textContent="강사보수로 분류된 항목이 없습니다";
+    setTimeout(()=>msg.textContent="",3000);
+    return;
+  }
+  // 기준일 가져오기
+  const cutDay=parseInt(localStorage.getItem("sal_cut_day")||"5");
+  const sal=getSal();
+  if(!sal[curYr])sal[curYr]={};
+  let count=0;
+  salRows.forEach(r=>{
+    // 강사명 추출 (TC 목록에서 매칭)
+    const teacher=TC.find(t=>r.desc.includes(t.replace("T","")||t));
+    if(!teacher) return;
+    // 날짜 파싱
+    const date=new Date(r.date);
+    const day=date.getDate();
+    const month=date.getMonth()+1; // 1~12
+    // 방법B: 기준일 이전이면 전월 보수
+    const targetMonth=day<=cutDay?(month===1?12:month-1):month;
+    const key=targetMonth+"-"+teacher;
+    // 기존값과 합산 (같은 강사 여러 건 있을 수 있음)
+    const existing=sal[curYr][key]||{base:0};
+    sal[curYr][key]={base:(existing.base||0)+r.amt};
+    count++;
+  });
+  setSal(sal);
+  msg.style.color="var(--green)";
+  msg.textContent=`✓ ${count}건 자동 입력 완료`;
+  setTimeout(()=>msg.textContent="",3000);
+  rT3();
+}
+
+// salT 셀렉트 초기화 + 기준일 복원
+function initT3(){
+  const salTSel=$("salT");
+  if(salTSel&&!salTSel.options.length){
+    TC.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;salTSel.appendChild(o);});
+  }
+  const cutDay=localStorage.getItem("sal_cut_day")||"5";
+  if($("salCutDay"))$("salCutDay").value=cutDay;
+  rT3();
+}
+
+function doLogout(){
+  sessionStorage.clear();
+  $("mainHdr").style.display="none";
+  $("mainTabs").style.display="none";
+  $("mainContent").style.display="none";
+  $("loginWrap").style.display="flex";
+  let pinVal2="";
+  for(let i=0;i<4;i++){const d=$("d"+i);if(d)d.classList.remove("filled");}
+  if($("pinErr"))$("pinErr").textContent="";
+}
 </script>
 </body>
 </html>
