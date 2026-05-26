@@ -508,10 +508,10 @@ textarea{resize:vertical;min-height:64px}
 
 <!-- ══ T6 성적관리 ══ -->
 <div class="panel" id="t6">
-  <div class="iframe-wrap">
+  <div class="iframe-wrap" id="scoreWrap" style="display:none">
     <iframe id="scoreIframe" src="about:blank" title="최선생 성적관리"></iframe>
   </div>
-  <div id="scoreHolder" style="display:none;padding:40px;text-align:center">
+  <div id="scoreHolder" style="display:block;padding:40px;text-align:center">
     <div style="font-size:52px;margin-bottom:16px">📊</div>
     <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">성적관리 앱 연결</div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:20px">성적관리 앱을 Netlify에 배포한 후 URL을 입력하세요</div>
@@ -658,10 +658,9 @@ function go(id,btn){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
   $(id).classList.add("on");btn.classList.add("on");
   if(id==="t6"){
-    const saved=localStorage.getItem(SCORE_URL_KEY);
-    const wrap=$("scoreIframe").parentElement;
-    if(saved){wrap.style.display="block";$("scoreHolder").style.display="none";}
-    else{wrap.style.display="none";$("scoreHolder").style.display="block";}
+    const saved=localStorage.getItem(SCORE_URL_KEY)||SCORE_DEFAULT_URL;
+    if(saved){$("scoreWrap").style.display="block";$("scoreHolder").style.display="none";}
+    else{$("scoreWrap").style.display="none";$("scoreHolder").style.display="block";}
   }
 }
 
@@ -1013,7 +1012,7 @@ function connectScore(){
   localStorage.setItem(SCORE_URL_KEY,url);
   $("scoreIframe").src=url;
   $("scoreHolder").style.display="none";
-  $("scoreIframe").parentElement.style.display="block";
+  $("scoreWrap").style.display="block";
 }
 function loadScoreLocal(){
   const inp=document.createElement("input");inp.type="file";inp.accept=".html";
