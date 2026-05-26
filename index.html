@@ -571,14 +571,14 @@ textarea{resize:vertical;min-height:64px}
 <!-- ══ T4 메모장 ══ -->
 <div class="panel" id="t4">
   <div class="iframe-wrap">
-    <iframe src="https://chic-kulfi-0275a1.netlify.app" title="최선생 메모장"></iframe>
+    <iframe src="/memo.html" title="최선생 메모장"></iframe>
   </div>
 </div>
 
 <!-- ══ T5 캘린더 ══ -->
 <div class="panel" id="t5">
   <div class="iframe-wrap">
-    <iframe src="https://choi-math-calendar.netlify.app/" title="최선생 캘린더"></iframe>
+    <iframe src="/calendar.html" title="최선생 캘린더"></iframe>
   </div>
 </div>
 
@@ -680,7 +680,7 @@ let db=null,curYr="2026",_notes=[],_evs=[];
 
 // ── PIN 로그인
 const SCORE_URL_KEY="score_app_url";
-const SCORE_DEFAULT_URL="https://choi-math-score.netlify.app/";
+const SCORE_DEFAULT_URL="/score.html";
 let pinVal="";
 function pinPress(n){
   if(pinVal.length>=4)return;
