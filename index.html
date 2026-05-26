@@ -431,8 +431,36 @@ textarea{resize:vertical;min-height:64px}
     <span style="margin-left:auto;font-size:11px;color:#B45309">노란 행을 확인해주세요</span>
   </div>
 
-  <!-- 내부이체 안내 -->
-  <div id="t2InternalNote" style="display:none;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:8px 12px;font-size:11px;color:#1E40AF;margin-bottom:12px"></div>
+  <!-- 내부이체/공과금 안내 -->
+  <div id="t2InternalNote" style="display:none;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;font-size:11px;color:#1E40AF;margin-bottom:12px"></div>
+
+  <!-- 내부이체 별도 카드 -->
+  <div class="card" id="t2TransferCard" style="display:none;border-left:3px solid #6366F1">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-title" style="margin:0;color:#4338CA">🔄 내부이체 현황 (순이익 제외)</div>
+      <span style="font-size:11px;color:var(--text3)" id="t2TransferLabel"></span>
+    </div>
+    <div style="overflow-x:auto;max-height:200px;overflow-y:auto">
+      <table class="acct-table" style="min-width:400px">
+        <thead><tr><th>날짜</th><th>적요</th><th style="text-align:right">금액</th><th>은행</th></tr></thead>
+        <tbody id="t2TransferBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:8px;padding:8px 12px;background:#EEF2FF;border-radius:6px;display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:#4338CA;font-weight:700">월 합계</span>
+      <span style="color:#4338CA;font-weight:900" id="t2TransferTotal">—</span>
+    </div>
+    <!-- 연간 내부이체 현황 -->
+    <div style="margin-top:12px">
+      <div style="font-size:11px;font-weight:700;color:#4338CA;margin-bottom:6px">연간 내부이체 현황</div>
+      <div id="t2TransferYrGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px"></div>
+      <div style="margin-top:6px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px" id="t2TransferYrGrid2"></div>
+      <div style="margin-top:8px;padding:6px 10px;background:#EEF2FF;border-radius:6px;display:flex;justify-content:space-between;font-size:11px">
+        <span style="color:#4338CA;font-weight:700">연간 합계</span>
+        <span style="color:#4338CA;font-weight:900" id="t2TransferYrTotal">—</span>
+      </div>
+    </div>
+  </div>
 
   <!-- 지출 분류 테이블 -->
   <div class="card" id="t2ExpCard" style="display:none">
@@ -871,10 +899,10 @@ function buildAllView(){
 function getAD(){return ld("acct_"+curYr,{});}
 function setAD(d){sv("acct_"+curYr,d);}
 // ══ T2 매출·순이익 (신규) ══
-const CATS=['강사보수','임차료','교재비','통신비','복사기임대','식비','4대보험/세금','세무기장비','방역비','네이버페이','곗돈/보험','환불','내부이체','기타'];
-const KW_MAP={'용역비':'강사보수','보수':'강사보수','주차비':'강사보수','지입실장':'강사보수','월세':'임차료','관리비':'임차료','매쓰홀릭':'교재비','대교에듀':'교재비','내신코치':'교재비','KT통신':'통신비','SK인텔릭스':'통신비','신도정보':'복사기임대','식사비':'식비','굿푸드':'식비','국민연금':'4대보험/세금','국민건강':'4대보험/세금','청주시':'4대보험/세금','피플택스':'세무기장비','세스코':'방역비','네이버페이':'네이버페이','곗돈':'곗돈/보험','보험':'곗돈/보험','모으는기업':'내부이체','신한공과금':'내부이체','환불':'환불'};
-const CAT_BG={'강사보수':'#DBEAFE','임차료':'#FEF3C7','교재비':'#D1FAE5','통신비':'#EDE9FE','복사기임대':'#FCE7F3','식비':'#FEF9C3','4대보험/세금':'#FFE4E6','세무기장비':'#F3F4F6','방역비':'#ECFDF5','네이버페이':'#E0F2FE','곗돈/보험':'#FDF2F8','환불':'#FFF7ED','내부이체':'#F1F5F9','기타':'#F9FAFB'};
-const CAT_TC={'강사보수':'#1E40AF','임차료':'#92400E','교재비':'#065F46','통신비':'#5B21B6','복사기임대':'#9D174D','식비':'#78350F','4대보험/세금':'#9B1C1C','세무기장비':'#374151','방역비':'#064E3B','네이버페이':'#0C4A6E','곗돈/보험':'#831843','환불':'#92400E','내부이체':'#475569','기타':'#6B7280'};
+const CATS=['강사보수','임차료','교재비','통신비','복사기임대','식비','4대보험/세금','세무기장비','방역비','네이버페이','곗돈/보험','지입기사','환불','내부이체','공과금','기타','삭제'];
+const KW_MAP={'용역비':'강사보수','보수':'강사보수','주차비':'강사보수','지입실장':'강사보수','이봉희':'지입기사','조광수':'지입기사','월세':'임차료','관리비':'임차료','매쓰홀릭':'교재비','대교에듀':'교재비','내신코치':'교재비','KT통신':'통신비','SK인텔릭스':'통신비','신도정보':'복사기임대','식사비':'식비','굿푸드':'식비','국민연금':'4대보험/세금','국민건강':'4대보험/세금','피플택스':'세무기장비','세스코':'방역비','네이버페이':'네이버페이','곗돈':'곗돈/보험','보험':'곗돈/보험','모으는기업':'내부이체','신한공과금':'내부이체','개인기업':'내부이체','청주시':'공과금','공과금':'공과금','환불':'환불'};
+const CAT_BG={'강사보수':'#DBEAFE','임차료':'#FEF3C7','교재비':'#D1FAE5','통신비':'#EDE9FE','복사기임대':'#FCE7F3','식비':'#FEF9C3','4대보험/세금':'#FFE4E6','세무기장비':'#F3F4F6','방역비':'#ECFDF5','네이버페이':'#E0F2FE','곗돈/보험':'#FDF2F8','지입기사':'#FFF1F2','환불':'#FFF7ED','내부이체':'#F1F5F9','공과금':'#F0F9FF','기타':'#F9FAFB','삭제':'#FEF2F2'};
+const CAT_TC={'강사보수':'#1E40AF','임차료':'#92400E','교재비':'#065F46','통신비':'#5B21B6','복사기임대':'#9D174D','식비':'#78350F','4대보험/세금':'#9B1C1C','세무기장비':'#374151','방역비':'#064E3B','네이버페이':'#0C4A6E','곗돈/보험':'#831843','지입기사':'#9B1C1C','환불':'#92400E','내부이체':'#475569','공과금':'#0C4A6E','기타':'#6B7280','삭제':'#991B1B'};
 
 let t2CurMonth=0; // 0=전체
 let t2ExpRows=[]; // {date,desc,amt,bank,cat,month}
@@ -996,22 +1024,60 @@ function renderT2(){
 
   // 내부이체 분리
   const internal=rows.filter(r=>r.cat==='내부이체');
-  const expense=rows.filter(r=>r.cat!=='내부이체');
+  const deleted=rows.filter(r=>r.cat==='삭제');
+  const utility=rows.filter(r=>r.cat==='공과금');
+  const expense=rows.filter(r=>r.cat!=='내부이체'&&r.cat!=='삭제'&&r.cat!=='공과금');
   const unclassified=rows.filter(r=>!r.cat);
   const totalExp=expense.reduce((a,r)=>a+r.amt,0);
 
-  // 내부이체 안내
+  // 내부이체 + 공과금 안내
+  const note=$('t2InternalNote');
+  let noteHtml='';
   if(internal.length){
     const intTotal=internal.reduce((a,r)=>a+r.amt,0);
-    const note=$('t2InternalNote');
-    note.style.display='block';
-    note.innerHTML=`💡 <strong>내부이체</strong> ${internal.map(r=>r.desc+'('+fmt(r.amt)+'원)').join(' / ')} → 순이익 계산 제외`;
-  } else {$('t2InternalNote').style.display='none';}
+    noteHtml+=`<div style="margin-bottom:${utility.length?'8px':'0'}">💡 <strong>내부이체</strong>(순이익 계산 제외): ${internal.map(r=>r.desc+' '+fmt(r.amt)+'원').join(' / ')}</div>`;
+  }
+  if(utility.length){
+    const utilTotal=utility.reduce((a,r)=>a+r.amt,0);
+    noteHtml+=`<div>🏛️ <strong>공과금</strong>(지출 제외): ${utility.map(r=>r.desc+' '+fmt(r.amt)+'원').join(' / ')}</div>`;
+  }
+  if(noteHtml){note.style.display='block';note.innerHTML=noteHtml;}
+  else note.style.display='none';
 
   // 미분류 배너
   const banner=$('t2UnclsBanner');
   if(unclassified.length){banner.style.display='flex';$('t2UnclsCount').textContent=unclassified.length+'건';}
   else banner.style.display='none';
+
+  // 내부이체 별도 카드 렌더링
+  const transferCard=$('t2TransferCard');
+  if(internal.length){
+    transferCard.style.display='block';
+    const intTotal=internal.reduce((a,r)=>a+r.amt,0);
+    $('t2TransferLabel').textContent=t2CurMonth===0?'연간':t2CurMonth+'월';
+    $('t2TransferBody').innerHTML=internal.map(r=>`<tr>
+      <td style="color:var(--text3);white-space:nowrap">${r.date.slice(5)}</td>
+      <td style="font-weight:600">${r.desc}</td>
+      <td style="text-align:right;font-weight:700;color:#4338CA">${fmt(r.amt)}원</td>
+      <td><span style="font-size:10px;padding:1px 6px;border-radius:4px;font-weight:700;background:${r.bank==='기업'?'#EFF6FF':r.bank==='신한'?'#FFF1F2':'#F0FDF4'};color:${r.bank==='기업'?'#1E40AF':r.bank==='신한'?'#9B1C1C':'#065F46'}">${r.bank}</span></td>
+    </tr>`).join('');
+    $('t2TransferTotal').textContent=fmt(intTotal)+'원';
+    // 연간 월별 내부이체
+    const yrTransfer=Array.from({length:12},(_,i)=>{
+      const mi=i+1;
+      return t2ExpRows.filter(r=>r.cat==='내부이체'&&r.month===mi).reduce((a,r)=>a+r.amt,0);
+    });
+    const yrTransTotal=yrTransfer.reduce((a,b)=>a+b,0);
+    $('t2TransferYrTotal').textContent=fmt(yrTransTotal)+'원';
+    const mkCell=(i)=>`<div style="display:flex;flex-direction:column;gap:2px;text-align:center">
+      <span style="font-size:9px;font-weight:700;color:#4338CA">${MO[i]}</span>
+      <span style="font-size:11px;font-weight:700;color:${yrTransfer[i]?'#4338CA':'var(--text3)'}">${yrTransfer[i]?(yrTransfer[i]/10000).toFixed(0)+'만':'—'}</span>
+    </div>`;
+    $('t2TransferYrGrid').innerHTML=Array.from({length:6},(_,i)=>mkCell(i)).join('');
+    $('t2TransferYrGrid2').innerHTML=Array.from({length:6},(_,i)=>mkCell(i+6)).join('');
+  } else {
+    if(transferCard) transferCard.style.display='none';
+  }
 
   // 매출 입력
   const rev=t2RevData[t2CurMonth]||0;
@@ -1058,7 +1124,7 @@ function renderT2(){
 }
 
 function renderT2Table(rows){
-  const showing=window._t2Filter==='uncls'?rows.filter(r=>!r.cat):rows;
+  const showing=(window._t2Filter==='uncls'?rows.filter(r=>!r.cat):rows).filter(r=>r.cat!=='삭제');
   $('t2ExpTbody').innerHTML=showing.map(r=>{
     const unc=!r.cat;
     const opts=CATS.map(c=>`<option value="${c}" ${r.cat===c?'selected':''}>${c}</option>`).join('');
@@ -1106,16 +1172,42 @@ function renderT2CatSummary(rows){
 }
 
 function onRevNew(mi,el){
+  // 커서 위치 보존
   const pos=el.selectionStart,oldLen=el.value.length;
   const raw=el.value.replace(/[^0-9]/g,'');
   const num=parseInt(raw)||0;
   el.value=num?num.toLocaleString('ko-KR'):'';
   const newLen=el.value.length;
   try{el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));}catch(e){}
+  // 저장
   t2RevData[mi]=num;
   if(!num) delete t2RevData[mi];
   localStorage.setItem('choi_rev_'+curYr,JSON.stringify(t2RevData));
-  renderT2();
+  // input 재생성 없이 요약카드+차트만 업데이트
+  updateT2Summary();
+  buildT2Chart();
+}
+
+function updateT2Summary(){
+  const rows=getT2Rows();
+  const expense=rows.filter(r=>r.cat!=='내부이체'&&r.cat!=='삭제'&&r.cat!=='공과금');
+  const totalExp=expense.reduce((a,r)=>a+r.amt,0);
+  const totalRev=t2CurMonth===0
+    ?Object.values(t2RevData).reduce((a,b)=>a+b,0)
+    :(t2RevData[t2CurMonth]||0);
+  const net=totalRev-totalExp;
+  const rate=totalRev>0?(net/totalRev*100).toFixed(1):null;
+  $('t2RevLabel').textContent=(t2CurMonth===0?'연간':t2CurMonth+'월')+' 매출';
+  $('t2ExpLabel').textContent=(t2CurMonth===0?'연간':t2CurMonth+'월')+' 실지출';
+  $('t2NetLabel').textContent=(t2CurMonth===0?'연간':t2CurMonth+'월')+' 순이익';
+  $('t2RevVal').textContent=totalRev?fmt(totalRev)+'원':'—';
+  $('t2ExpVal').textContent=totalExp?fmt(totalExp)+'원':'—';
+  $('t2NetVal').textContent=totalRev&&totalExp?(net>=0?'+':'')+fmt(net)+'원':'—';
+  $('t2NetVal').style.color=net>=0?'var(--green)':'var(--red)';
+  if($('t2RateVal')){
+    $('t2RateVal').textContent=rate?rate+'%':'—';
+    if(rate)$('t2RateVal').style.color=parseFloat(rate)>=50?'var(--green)':parseFloat(rate)>=30?'var(--gold)':'var(--red)';
+  }
 }
 
 function buildT2Chart(){
