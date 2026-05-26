@@ -1079,16 +1079,32 @@ function renderT2(){
     if(transferCard) transferCard.style.display='none';
   }
 
-  // 매출 입력
-  const rev=t2RevData[t2CurMonth]||0;
+  // 매출 입력 - 포커스 중인 input은 재생성 안함
   const wrap=$('t2RevInputWrap');
+  const focusedInput=document.activeElement;
+  const isFocusedInWrap=wrap&&wrap.contains(focusedInput);
   if(t2CurMonth===0){
-    // 전체: 1~12월 그리드
     const revs=Array.from({length:12},(_,i)=>t2RevData[i+1]||0);
-    wrap.innerHTML=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:6px">${Array.from({length:6},(_,i)=>`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i]}</span><input class="money-input" style="border-color:#A7F3D0;font-size:11px" value="${revs[i]?revs[i].toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${i+1},this)"></div>`).join('')}</div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${Array.from({length:6},(_,i)=>`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i+6]}</span><input class="money-input" style="border-color:#A7F3D0;font-size:11px" value="${revs[i+6]?revs[i+6].toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${i+7},this)"></div>`).join('')}</div>`;
+    // 이미 그리드 있으면 값만 업데이트
+    const existingInputs=wrap?wrap.querySelectorAll('input[data-rev-mi]'):[];
+    if(existingInputs.length===12){
+      existingInputs.forEach(el=>{
+        if(document.activeElement===el) return; // 포커스 중인 건 건드리지 않음
+        const mi=parseInt(el.dataset.revMi);
+        const v=revs[mi-1];
+        el.value=v?v.toLocaleString('ko-KR'):'';
+      });
+    } else {
+      if(wrap) wrap.innerHTML=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:6px">${Array.from({length:6},(_,i)=>`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i]}</span><input class="money-input" data-rev-mi="${i+1}" style="border-color:#A7F3D0;font-size:11px" value="${revs[i]?revs[i].toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${i+1},this)"></div>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${Array.from({length:6},(_,i)=>`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i+6]}</span><input class="money-input" data-rev-mi="${i+7}" style="border-color:#A7F3D0;font-size:11px" value="${revs[i+6]?revs[i+6].toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${i+7},this)"></div>`).join('')}</div>`;
+    }
   } else {
-    wrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:700;color:#2D7A62">${t2CurMonth}월 수강료</span><input class="money-input" style="border-color:#A7F3D0;font-size:15px;font-weight:900" value="${rev?rev.toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${t2CurMonth},this)"><span style="font-size:10px;color:var(--text3)">입력 후 순이익 자동계산</span></div>`;
+    const rev=t2RevData[t2CurMonth]||0;
+    const existingInput=wrap?wrap.querySelector(`input[data-rev-mi="${t2CurMonth}"]`):null;
+    if(existingInput){
+      if(document.activeElement!==existingInput) existingInput.value=rev?rev.toLocaleString('ko-KR'):'';
+    } else {
+      if(wrap) wrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:700;color:#2D7A62">${t2CurMonth}월 수강료</span><input class="money-input" data-rev-mi="${t2CurMonth}" style="border-color:#A7F3D0;font-size:15px;font-weight:900" value="${rev?rev.toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${t2CurMonth},this)"><span style="font-size:10px;color:var(--text3)">입력 후 순이익 자동계산</span></div>`;
+    }
   }
 
   // 요약 카드
