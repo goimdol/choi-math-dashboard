@@ -642,6 +642,8 @@ const $=id=>document.getElementById(id);
 let db=null,curYr="2026",_notes=[],_evs=[];
 
 // ── PIN 로그인
+const SCORE_URL_KEY="score_app_url";
+const SCORE_DEFAULT_URL="https://choi-math-score.netlify.app/";
 let pinVal="";
 function pinPress(n){
   if(pinVal.length>=4)return;
