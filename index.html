@@ -115,6 +115,13 @@ textarea{resize:vertical;min-height:64px}
 
 /* BAR CHART */
 .bc{display:flex;align-items:flex-end;gap:3px}
+.t2-month-btn{padding:4px 10px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text2);transition:.15s;font-family:inherit}
+.t2-month-btn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.exp-uncls td{background:#FFFBEB}
+.exp-uncls td:first-child{border-left:3px solid #F59E0B}
+.cat-sel{border:1px solid var(--border);border-radius:6px;padding:3px 6px;font-size:11px;font-family:inherit;background:#fff;cursor:pointer;color:var(--text1);width:110px}
+.cat-sel.unset{border-color:#F59E0B;background:#FEF9C3;color:#92400E;font-weight:700}
+.cat-sel.set{border-color:#D1FAE5;background:#F0FDF4;color:#065F46}
 .bg{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
 .bi{width:100%;display:flex;gap:1px;align-items:flex-end}
 .b{border-radius:2px 2px 0 0;flex:1;transition:height .3s}
@@ -366,70 +373,102 @@ textarea{resize:vertical;min-height:64px}
 
 <!-- ══ T2 매출·순이익 ══ -->
 <div class="panel" id="t2">
-  <!-- 요약 카드 -->
-  <div class="sg4">
-    <div class="st st-g"><div class="sl">연간 총 매출</div><div class="sv" id="s2Rev" style="color:var(--green)">—</div></div>
-    <div class="st st-r"><div class="sl">연간 총 지출</div><div class="sv" id="s2Exp" style="color:var(--red)">—</div></div>
-    <div class="st st-n"><div class="sl">연간 순이익</div><div class="sv" id="s2Pro" style="color:var(--navy)">—</div></div>
-    <div class="st st-gold"><div class="sl">순이익률</div><div class="sv" id="s2Rate" style="color:var(--gold)">—</div></div>
-  </div>
 
-  <!-- 💵 수강료 매출 입력 카드 (별도 강조) -->
-  <div class="card" style="border:2px solid #6EAA95;background:linear-gradient(135deg,#F4F7F6,#EDF2F0)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="font-size:14px;font-weight:800;color:#065F46">💵 월별 수강료 매출 입력</div>
-      <div style="font-size:11px;color:#2D7A62;background:#D6EDEA;padding:4px 10px;border-radius:20px;font-weight:600">입력 후 자동 계산</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:8px" id="revInputGrid"></div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px" id="revInputGrid2"></div>
-    <div style="margin-top:12px;padding:10px 12px;background:#D6EDEA;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:12px;font-weight:700;color:#1A5C4A">연간 총 매출</span>
-      <span style="font-size:16px;font-weight:900;color:#1A5C4A" id="revGrandTotal">—</span>
+  <!-- 월 탭 -->
+  <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;flex:1">
+      <button class="t2-month-btn on" onclick="setT2Month(0,this)">전체</button>
+      <button class="t2-month-btn" onclick="setT2Month(1,this)">1월</button>
+      <button class="t2-month-btn" onclick="setT2Month(2,this)">2월</button>
+      <button class="t2-month-btn" onclick="setT2Month(3,this)">3월</button>
+      <button class="t2-month-btn" onclick="setT2Month(4,this)">4월</button>
+      <button class="t2-month-btn" onclick="setT2Month(5,this)">5월</button>
+      <button class="t2-month-btn" onclick="setT2Month(6,this)">6월</button>
+      <button class="t2-month-btn" onclick="setT2Month(7,this)">7월</button>
+      <button class="t2-month-btn" onclick="setT2Month(8,this)">8월</button>
+      <button class="t2-month-btn" onclick="setT2Month(9,this)">9월</button>
+      <button class="t2-month-btn" onclick="setT2Month(10,this)">10월</button>
+      <button class="t2-month-btn" onclick="setT2Month(11,this)">11월</button>
+      <button class="t2-month-btn" onclick="setT2Month(12,this)">12월</button>
     </div>
   </div>
 
-  <!-- 지출 업로드 -->
-  <div class="card">
-    <div class="card-title">📤 지출자료 업로드</div>
-    <div class="upload-zone" onclick="document.getElementById('expFile').click()">
-      <input type="file" id="expFile" accept=".csv,.xlsx,.xls" onchange="handleExpFile(this)">
-      <div style="font-size:24px;margin-bottom:8px">📂</div>
-      <div style="font-size:13px;font-weight:600;color:var(--text2)">엑셀 / CSV 파일을 클릭하여 업로드</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">은행 거래내역 파일 지원</div>
-    </div>
-    <div id="uploadStatus" style="font-size:11px;color:var(--green);margin-top:8px;text-align:center"></div>
+  <!-- 요약 4카드 -->
+  <div class="sg4" style="margin-bottom:14px">
+    <div class="st st-g"><div class="sl" id="t2RevLabel">매출</div><div class="sv" id="t2RevVal" style="color:var(--green)">—</div></div>
+    <div class="st st-r"><div class="sl" id="t2ExpLabel">실지출</div><div class="sv" id="t2ExpVal" style="color:var(--red)">—</div></div>
+    <div class="st st-n"><div class="sl" id="t2NetLabel">순이익</div><div class="sv" id="t2NetVal" style="color:var(--navy)">—</div></div>
+    <div class="st st-gold"><div class="sl">순이익률</div><div class="sv" id="t2RateVal" style="color:var(--gold)">—</div></div>
   </div>
-  <!-- 엑셀 파싱 결과 -->
-  <div class="card" id="expParseCard" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="card-title" style="margin:0">📋 업로드된 지출내역</div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span id="expParseStat" style="font-size:11px;color:var(--text3)"></span>
-        <button onclick="clearExpParse()" style="font-size:11px;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--text3)">✕ 닫기</button>
+
+  <!-- 업로드 + 매출 입력 (2열) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <!-- 거래내역 업로드 -->
+    <div class="card" style="margin:0">
+      <div class="card-title">📤 거래내역 업로드</div>
+      <div class="upload-zone" onclick="document.getElementById('expFile').click()" style="padding:14px">
+        <input type="file" id="expFile" accept=".csv,.xlsx,.xls" multiple onchange="handleExpFileNew(this)">
+        <div style="font-size:22px;margin-bottom:6px">📂</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text2)">클릭하여 업로드</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">기업은행·신한은행·농협 등 모든 은행 지원</div>
+        <div style="font-size:11px;color:var(--text3)">여러 파일 동시 선택 가능</div>
+      </div>
+      <div id="uploadStatus2" style="font-size:11px;color:var(--green);margin-top:8px;text-align:center"></div>
+    </div>
+    <!-- 매출 입력 -->
+    <div class="card" style="margin:0;border:2px solid #6EAA95;background:linear-gradient(135deg,#F4F7F6,#EDF2F0)">
+      <div style="font-size:13px;font-weight:800;color:#065F46;margin-bottom:10px">💵 수강료 매출 입력</div>
+      <div id="t2RevInputWrap">
+        <!-- 월별 단일 입력 or 전체 그리드 -->
       </div>
     </div>
-    <div style="overflow-x:auto;max-height:340px;overflow-y:auto">
-      <table class="acct-table" id="expParseTable" style="min-width:500px"></table>
+  </div>
+
+  <!-- 미분류 배너 -->
+  <div id="t2UnclsBanner" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;display:none;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;font-weight:600;color:#92400E">
+    ⚠️ 분류가 필요한 항목 <span id="t2UnclsCount" style="background:#F59E0B;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:800">0건</span>
+    <span style="margin-left:auto;font-size:11px;color:#B45309">노란 행을 확인해주세요</span>
+  </div>
+
+  <!-- 내부이체 안내 -->
+  <div id="t2InternalNote" style="display:none;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:8px 12px;font-size:11px;color:#1E40AF;margin-bottom:12px"></div>
+
+  <!-- 지출 분류 테이블 -->
+  <div class="card" id="t2ExpCard" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-title" style="margin:0">📋 지출 내역 <span id="t2ExpCardLabel" style="font-size:11px;font-weight:500;color:var(--text3)"></span></div>
+      <div style="display:flex;gap:6px">
+        <button onclick="t2FilterAll()" class="btn-o" style="padding:3px 10px;font-size:11px">전체</button>
+        <button onclick="t2FilterUncls()" class="btn-o" style="padding:3px 10px;font-size:11px;border-color:#F59E0B;color:#92400E">미분류만</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
+      <table class="acct-table" style="min-width:560px">
+        <thead><tr>
+          <th>날짜</th><th>적요</th><th style="text-align:right">금액</th><th>은행</th><th>카테고리</th>
+        </tr></thead>
+        <tbody id="t2ExpTbody"></tbody>
+      </table>
     </div>
   </div>
-  <!-- 회계 테이블 -->
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="card-title" style="margin:0">월별 매출 · 지출 · 순이익 상세</div>
-      <div style="font-size:11px;color:var(--text3)">💡 지출 칸 직접 수정 가능</div>
-    </div>
-    <div class="acct-wrap"><table class="acct-table"><thead id="acctHead"></thead><tbody id="acctBody"></tbody></table></div>
+
+  <!-- 카테고리별 요약 -->
+  <div class="card" id="t2CatCard" style="display:none">
+    <div class="card-title">📊 카테고리별 지출 요약</div>
+    <div id="t2CatGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px"></div>
   </div>
-  <!-- 차트 -->
+
+  <!-- 연간 차트 -->
   <div class="card">
     <div class="card-title">연간 추이</div>
     <div class="bc" id="t2ch" style="height:120px"></div>
     <div class="legend">
-      <span><span class="ld" style="background:var(--navy)"></span>매출</span>
+      <span><span class="ld" style="background:var(--green)"></span>매출</span>
       <span><span class="ld" style="background:var(--red)"></span>지출</span>
-      <span><span class="ld" style="background:var(--green)"></span>순이익</span>
+      <span><span class="ld" style="background:var(--navy)"></span>순이익</span>
     </div>
   </div>
+
 </div>
 
 <!-- ══ T3 강사 보수 ══ -->
@@ -650,9 +689,9 @@ function initApp(){
   $("t1tc").innerHTML=`<option>전체</option>`+TC.map(t=>`<option>${t}</option>`).join("");
   $("sDt").value=td();
   setGrp("elem");
-  rT1();buildAcct();rT3();initScore();initPinMgmt();
+  rT1();initT2();rT3();initScore();initPinMgmt();
 }
-function setYr(){curYr=$("yrSel").value;rT1();buildAcct();rT3();}
+function setYr(){curYr=$("yrSel").value;t2RevData=JSON.parse(localStorage.getItem("choi_rev_"+curYr)||"{}");loadT2ExpRows();rT1();renderT2();rT3();}
 function go(id,btn){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
@@ -817,290 +856,288 @@ function buildAllView(){
 // ══ T2 회계 ══
 function getAD(){return ld("acct_"+curYr,{});}
 function setAD(d){sv("acct_"+curYr,d);}
-function buildRevGrid(){
-  const data=getAD();
-  const revs=data.rev||Array(12).fill(0);
-  const revTotal=revs.reduce((a,b)=>a+(b||0),0);
-  if($("revGrandTotal"))$("revGrandTotal").textContent=revTotal?fmt(revTotal)+"원":"—";
-  // input 이미 있으면 값만 업데이트 (포커스/커서 유지)
-  [0,1,2,3,4,5].forEach(i=>{
-    const el=document.querySelector(`[data-rev="${i}"]`);
-    if(el&&document.activeElement!==el)el.value=revs[i]?revs[i].toLocaleString("ko-KR"):"";
-  });
-  [6,7,8,9,10,11].forEach(i=>{
-    const el=document.querySelector(`[data-rev="${i}"]`);
-    if(el&&document.activeElement!==el)el.value=revs[i]?revs[i].toLocaleString("ko-KR"):"";
-  });
-  // 첫 렌더링 시 생성
-  if(!document.querySelector('[data-rev="0"]')){
-    const mkCell=(i)=>`<div style="display:flex;flex-direction:column;gap:3px">
-      <span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i]}</span>
-      <input class="money-input" data-rev="${i}" style="border-color:#A7F3D0;background:#fff;font-weight:700" value="${revs[i]?revs[i].toLocaleString("ko-KR"):""}" placeholder="0" oninput="onRevG(${i},this)">
-    </div>`;
-    if($("revInputGrid"))$("revInputGrid").innerHTML=Array.from({length:6},(_,i)=>mkCell(i)).join("");
-    if($("revInputGrid2"))$("revInputGrid2").innerHTML=Array.from({length:6},(_,i)=>mkCell(i+6)).join("");
+// ══ T2 매출·순이익 (신규) ══
+const CATS=['강사보수','임차료','교재비','통신비','복사기임대','식비','4대보험/세금','세무기장비','방역비','네이버페이','곗돈/보험','환불','내부이체','기타'];
+const KW_MAP={'용역비':'강사보수','보수':'강사보수','주차비':'강사보수','지입실장':'강사보수','월세':'임차료','관리비':'임차료','매쓰홀릭':'교재비','대교에듀':'교재비','내신코치':'교재비','KT통신':'통신비','SK인텔릭스':'통신비','신도정보':'복사기임대','식사비':'식비','굿푸드':'식비','국민연금':'4대보험/세금','국민건강':'4대보험/세금','청주시':'4대보험/세금','피플택스':'세무기장비','세스코':'방역비','네이버페이':'네이버페이','곗돈':'곗돈/보험','보험':'곗돈/보험','모으는기업':'내부이체','신한공과금':'내부이체','환불':'환불'};
+const CAT_BG={'강사보수':'#DBEAFE','임차료':'#FEF3C7','교재비':'#D1FAE5','통신비':'#EDE9FE','복사기임대':'#FCE7F3','식비':'#FEF9C3','4대보험/세금':'#FFE4E6','세무기장비':'#F3F4F6','방역비':'#ECFDF5','네이버페이':'#E0F2FE','곗돈/보험':'#FDF2F8','환불':'#FFF7ED','내부이체':'#F1F5F9','기타':'#F9FAFB'};
+const CAT_TC={'강사보수':'#1E40AF','임차료':'#92400E','교재비':'#065F46','통신비':'#5B21B6','복사기임대':'#9D174D','식비':'#78350F','4대보험/세금':'#9B1C1C','세무기장비':'#374151','방역비':'#064E3B','네이버페이':'#0C4A6E','곗돈/보험':'#831843','환불':'#92400E','내부이체':'#475569','기타':'#6B7280'};
+
+let t2CurMonth=0; // 0=전체
+let t2ExpRows=[]; // {date,desc,amt,bank,cat,month}
+let t2CatMapping=JSON.parse(localStorage.getItem('choi_cat_map')||'{}');
+let t2RevData=JSON.parse(localStorage.getItem('choi_rev_'+curYr)||'{}'); // {1:5000000,...}
+
+function autoClassify(desc){
+  if(t2CatMapping[desc]) return t2CatMapping[desc];
+  for(const [kw,cat] of Object.entries(KW_MAP)){if(desc.includes(kw)) return cat;}
+  return '';
+}
+
+function detectBank(headers){
+  const h=headers.join('');
+  if(h.includes('기업은행')||h.includes('입출식')) return '기업';
+  if(h.includes('신한')) return '신한';
+  if(h.includes('농협')||h.includes('NH')) return '농협';
+  return '기타';
+}
+
+function parseRows(rows, filename){
+  // 기업은행: 날짜(0) 출금(1) 입금(2) 잔액(3) 적요(4)
+  // 신한은행: 헤더행 찾아서 파싱
+  let bank='기타';
+  if(filename.includes('기업')||filename.includes('IBK')) bank='기업';
+  else if(filename.includes('신한')||filename.includes('Shinhan')) bank='신한';
+  else if(filename.includes('농협')||filename.includes('NH')) bank='농협';
+
+  const results=[];
+  let headerRow=-1;
+  // 헤더 행 탐지
+  for(let i=0;i<Math.min(10,rows.length);i++){
+    const r=rows[i].map(c=>String(c||''));
+    if(r.some(c=>c.includes('거래일')||c.includes('날짜')||c.includes('일자'))){headerRow=i;break;}
   }
-}
-function onRevG(mi,el){
-  const raw=el.value.replace(/[^0-9]/g,"");
-  const num=parseInt(raw)||0;
-  const formatted=num?num.toLocaleString("ko-KR"):"";
-  el.value=formatted;
-  const d=getAD();if(!d.rev)d.rev=Array(12).fill(0);d.rev[mi]=num;setAD(d);
-  // buildAcct/buildRevGrid 호출 시 input 재생성으로 포커스 잃는 문제 방지
-  const data2=getAD();
-  const revs2=data2.rev||Array(12).fill(0);
-  const revTotal2=revs2.reduce((a,b)=>a+(b||0),0);
-  if($("revGrandTotal"))$("revGrandTotal").textContent=revTotal2?fmt(revTotal2)+"원":"—";
-  buildAcct();
-}
-
-function buildAcct(){
-  const data=getAD();
-  buildRevGrid();
-  $("acctHead").innerHTML=`<tr><th>구분</th>${MO.map(m=>`<th>${m}</th>`).join("")}<th>합계</th></tr>`;
-  let body="";
-  const revs=data.rev||Array(12).fill(0);
-  const revTotal=revs.reduce((a,b)=>a+(b||0),0);
-  body+=`<tr class="rev-row"><td>💵 수강료 매출</td>`;
-  MO.forEach((_,i)=>{body+=`<td><input class="money-input" value="${revs[i]?fmt(revs[i]):""}" placeholder="0" oninput="onRev(${i},this)"></td>`;});
-  body+=`<td style="color:var(--green);font-weight:700;background:#EEF8F1">${revTotal?fmt(revTotal):"—"}</td></tr>`;
-
-  let allSub=Array(12).fill(0),refSub=Array(12).fill(0);
-  SECTIONS.forEach((sec,si)=>{
-    const isRef=!!sec.ref;
-    body+=`<tr class="sec-hdr" style="background:${sec.bg}"><td colspan="${MO.length+2}" style="color:#122C59;padding-left:12px">${sec.name}${isRef?' <span style="font-size:10px;color:#888;font-weight:400">(내부이체 — 실지출 제외)</span>':""}</td></tr>`;
-    let secT=Array(12).fill(0);
-    sec.items.forEach((item,ii)=>{
-      const key=`s${si}_i${ii}`;const vals=data[key]||Array(12).fill(0);
-      const rowT=vals.reduce((a,b)=>a+(b||0),0);
-      body+=`<tr><td style="padding-left:22px;color:var(--text2)">${item.n}</td>`;
-      MO.forEach((_,mi)=>{secT[mi]+=vals[mi]||0;body+=`<td><input class="money-input exp-input" value="${vals[mi]?fmt(vals[mi]):""}" placeholder="0" oninput="onExp('${key}',${mi},this)"></td>`;});
-      body+=`<td style="color:var(--text2);font-weight:600">${rowT?fmt(rowT):"—"}</td></tr>`;
+  if(headerRow===-1){
+    // 기업은행 형식: 첫 행이 바로 데이터
+    rows.forEach(r=>{
+      if(!r[0]) return;
+      const dateStr=String(r[0]||'').trim();
+      if(!/\d{4}-\d{2}-\d{2}/.test(dateStr)) return;
+      const amt=parseInt(String(r[1]||'0').replace(/[^0-9]/g,''))||0;
+      const desc=String(r[4]||r[2]||'').trim();
+      if(amt>0&&desc) results.push({date:dateStr,desc,amt,bank,cat:autoClassify(desc),month:parseInt(dateStr.split('-')[1])});
     });
-    body+=`<tr class="sub-total" style="background:${sec.sbg}"><td style="color:#122C59">소 계</td>`;
-    secT.forEach((v,mi)=>{
-      if(isRef)refSub[mi]+=v; else allSub[mi]+=v;
-      body+=`<td style="color:#122C59">${v?fmt(v):"—"}</td>`;
-    });
-    const secSum=secT.reduce((a,b)=>a+b,0);
-    body+=`<td style="background:${sec.gbg};color:#fff;font-weight:700">${secSum?fmt(secSum):"—"}</td></tr>`;
-  });
-
-  const expTotal=allSub.reduce((a,b)=>a+b,0);
-  const refTotal=refSub.reduce((a,b)=>a+b,0);
-  const realExp=expTotal; // 내부이체 이미 제외됨
-
-  body+=`<tr class="grand-total" style="background:var(--red)"><td>📤 실지출 합계</td>`;
-  allSub.forEach(v=>{body+=`<td>${v?fmt(v):"—"}</td>`;});
-  body+=`<td style="background:#8B0000">${expTotal?fmt(expTotal):"—"}</td></tr>`;
-
-  if(refTotal){
-    body+=`<tr class="real-total" style="background:#EEF3FF"><td style="color:var(--navy)">📌 내부이체 참고</td>`;
-    refSub.forEach(v=>{body+=`<td style="color:#7FA3D1">${v?fmt(v):"—"}</td>`;});
-    body+=`<td style="color:var(--navy);font-weight:700">${fmt(refTotal)}</td></tr>`;
+  } else {
+    const headers=rows[headerRow].map(c=>String(c||'').trim());
+    const dateIdx=headers.findIndex(h=>h.includes('거래일')||h.includes('날짜')||h.includes('일자'));
+    const outIdx=headers.findIndex(h=>h.includes('출금')||h.includes('지출'));
+    const descIdx=headers.findIndex(h=>h.includes('적요')||h.includes('내용')||h.includes('거래내용'));
+    if(bank==='기타') bank=detectBank(headers);
+    for(let i=headerRow+1;i<rows.length;i++){
+      const r=rows[i];
+      const dateStr=String(r[dateIdx]||'').trim();
+      if(!/\d{4}[-./]\d{1,2}[-./]\d{1,2}/.test(dateStr)) continue;
+      const normDate=dateStr.replace(/[./]/g,'-').slice(0,10);
+      const amt=parseInt(String(r[outIdx]||'0').replace(/[^0-9]/g,''))||0;
+      const desc=String(r[descIdx]||'').trim();
+      if(amt>0&&desc) results.push({date:normDate,desc,amt,bank,cat:autoClassify(desc),month:parseInt(normDate.split('-')[1])});
+    }
   }
-
-  let profTotal=0;
-  body+=`<tr class="profit-row" style="background:var(--navy)"><td>📈 순이익</td>`;
-  MO.forEach((_,i)=>{const p=(revs[i]||0)-allSub[i];profTotal+=p;body+=`<td style="color:${p>=0?"#6EE7B7":"#FCA5A5"}">${(revs[i]||allSub[i])?fmt(p):"—"}</td>`;});
-  body+=`<td style="background:#0D1B2E;color:${profTotal>=0?"#6EE7B7":"#FCA5A5"};font-weight:900">${profTotal?fmt(profTotal):"—"}</td></tr>`;
-  $("acctBody").innerHTML=body;
-
-  $("s2Rev").textContent=revTotal?fmtW(revTotal)+"원":"—";
-  $("s2Exp").textContent=expTotal?fmtW(expTotal)+"원":"—";
-  const pro=revTotal-expTotal;
-  $("s2Pro").textContent=(revTotal||expTotal)?fmtW(pro)+"원":"—";
-  $("s2Pro").style.color=pro>=0?"var(--navy)":"var(--red)";
-  $("s2Rate").textContent=revTotal?Math.round(pro/revTotal*100)+"%":"—";
-
-  const mx=Math.max(...MO.map((_,i)=>Math.max(revs[i]||0,allSub[i])),1);
-  $("t2ch").innerHTML=MO.map((_,i)=>{const r=revs[i]||0,e=allSub[i],p=r-e;
-    return`<div class="bg"><div class="bi" style="height:100px">
-      <div class="b" style="background:var(--navy);height:${r?Math.max(r/mx*98,3):0}px"></div>
-      <div class="b" style="background:var(--red);height:${e?Math.max(e/mx*98,3):0}px"></div>
-      <div class="b" style="background:${p>=0?"var(--green)":"#FCA5A5"};height:${(r||e)?Math.max(Math.abs(p)/mx*98,3):0}px"></div>
-    </div><span class="bl">${i+1}</span></div>`;
-  }).join("");
-}
-function onRev(mi,el){
-  const pos=el.selectionStart,oldLen=el.value.length;
-  const raw=el.value.replace(/[^0-9]/g,"");
-  const num=parseInt(raw)||0;
-  el.value=num?num.toLocaleString("ko-KR"):"";
-  const newLen=el.value.length;
-  el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));
-  const d=getAD();if(!d.rev)d.rev=Array(12).fill(0);d.rev[mi]=num;setAD(d);buildAcct();
-}
-function onExp(key,mi,el){
-  const pos=el.selectionStart,oldLen=el.value.length;
-  const raw=el.value.replace(/[^0-9]/g,"");
-  const num=parseInt(raw)||0;
-  el.value=num?num.toLocaleString("ko-KR"):"";
-  const newLen=el.value.length;
-  el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));
-  const d=getAD();if(!d[key])d[key]=Array(12).fill(0);d[key][mi]=num;setAD(d);buildAcct();
+  return results;
 }
 
-// 엑셀/CSV 업로드 → 동적 테이블 파싱
-function handleExpFile(input){
-  const file=input.files[0];if(!file)return;
-  const status=$("uploadStatus");
-  status.textContent="파일 읽는 중...";status.style.color="var(--text3)";
-  const reader=new FileReader();
-  const isCSV=file.name.toLowerCase().endsWith(".csv");
-  reader.onload=ev=>{
+async function handleExpFileNew(input){
+  const files=Array.from(input.files);if(!files.length) return;
+  const status=$('uploadStatus2');
+  status.textContent='파일 읽는 중...';status.style.color='var(--text3)';
+  let added=0;
+  for(const file of files){
     try{
+      const isCSV=file.name.toLowerCase().endsWith('.csv');
+      const isXLS=file.name.toLowerCase().endsWith('.xls')&&!file.name.toLowerCase().endsWith('.xlsx');
+      const buf=await file.arrayBuffer();
       let rows=[];
       if(isCSV){
-        const text=ev.target.result;
-        rows=text.split(/\r?\n/).map(l=>l.split(/,|\t/).map(c=>c.replace(/^"|"$/g,"").trim())).filter(r=>r.some(c=>c));
+        const text=new TextDecoder('utf-8').decode(buf);
+        rows=text.split(/
+?
+/).map(l=>l.split(/,|	/).map(c=>c.replace(/^"|"$/g,'').trim()));
       } else {
-        const wb=XLSX.read(new Uint8Array(ev.target.result),{type:"array"});
+        const wb=XLSX.read(new Uint8Array(buf),{type:'array'});
         const ws=wb.Sheets[wb.SheetNames[0]];
-        rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+        rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
       }
-      // 빈 행 제거
       rows=rows.filter(r=>r.some(c=>String(c).trim()));
-      if(!rows.length){status.textContent="데이터가 없습니다.";status.style.color="var(--red)";return;}
-      // 헤더 행과 데이터 행 분리
-      const header=rows[0];
-      const dataRows=rows.slice(1);
-      // 숫자 포맷: 천단위 쉼표
-      const fmtCell=v=>{
-        if(v===null||v===undefined||v==="")return"—";
-        const n=Number(String(v).replace(/[^0-9.-]/g,""));
-        if(!isNaN(n)&&n!==0&&String(v).match(/[0-9]/))return n.toLocaleString("ko-KR");
-        return String(v);
-      };
-      // 테이블 생성
-      let th=`<thead><tr>${header.map(h=>`<th style="background:#1B2E4B;color:#fff;font-size:11px;padding:6px 10px;white-space:nowrap">${h||""}</th>`).join("")}</tr></thead>`;
-      let tb=`<tbody>${dataRows.map((r,ri)=>`<tr style="background:${ri%2?"var(--surface2)":"#fff"}">${header.map((_,ci)=>`<td style="font-size:11px;padding:5px 10px;white-space:nowrap;text-align:${String(r[ci]).match(/^[0-9,.-]+$/)?"right":"left"}">${fmtCell(r[ci])}</td>`).join("")}</tr>`).join("")}</tbody>`;
-      $("expParseTable").innerHTML=th+tb;
-      $("expParseStat").textContent=`${dataRows.length}행 × ${header.length}열`;
-      $("expParseCard").style.display="block";
-      status.textContent=`✓ ${file.name} 업로드 완료`;
-      status.style.color="var(--green)";
-    }catch(e){
-      console.error(e);
-      status.textContent="파일 읽기 실패: "+e.message;
-      status.style.color="var(--red)";
-    }
-  };
-  if(isCSV)reader.readAsText(file,"UTF-8");
-  else reader.readAsArrayBuffer(file);
-  input.value="";
+      const newRows=parseRows(rows,file.name);
+      // 중복 제거 (같은 날짜+적요+금액)
+      newRows.forEach(nr=>{
+        const dup=t2ExpRows.find(er=>er.date===nr.date&&er.desc===nr.desc&&er.amt===nr.amt);
+        if(!dup){t2ExpRows.push(nr);added++;}
+      });
+    }catch(e){console.error(e);}
+  }
+  // 날짜 내림차순 정렬
+  t2ExpRows.sort((a,b)=>b.date.localeCompare(a.date));
+  saveT2ExpRows();
+  status.textContent=`✓ ${files.length}개 파일, ${added}건 추가됨 (총 ${t2ExpRows.length}건)`;
+  status.style.color='var(--green)';
+  input.value='';
+  renderT2();
 }
-function clearExpParse(){$("expParseCard").style.display="none";$("expParseTable").innerHTML="";$("uploadStatus").textContent="";}
 
-// ══ T6 성적관리 연결 ══
-const SCORE_URL_KEY="score_app_url";const SCORE_DEFAULT_URL="https://choi-math-score.netlify.app/";
-function initScore(){
-  const saved=localStorage.getItem(SCORE_URL_KEY)||SCORE_DEFAULT_URL;
-  if(saved){
-    $("scoreIframe").src=saved;
-    $("scoreHolder").style.display="none";
-    $("scoreIframe").parentElement.style.display="block";
+function saveT2ExpRows(){localStorage.setItem('choi_exp_'+curYr,JSON.stringify(t2ExpRows));}
+function loadT2ExpRows(){t2ExpRows=JSON.parse(localStorage.getItem('choi_exp_'+curYr)||'[]');}
+
+function setT2Month(m,btn){
+  t2CurMonth=m;
+  document.querySelectorAll('.t2-month-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderT2();
+}
+
+function getT2Rows(){
+  return t2CurMonth===0?t2ExpRows:t2ExpRows.filter(r=>r.month===t2CurMonth);
+}
+
+function renderT2(){
+  const rows=getT2Rows();
+  const label=t2CurMonth===0?'연간':t2CurMonth+'월';
+
+  // 내부이체 분리
+  const internal=rows.filter(r=>r.cat==='내부이체');
+  const expense=rows.filter(r=>r.cat!=='내부이체');
+  const unclassified=rows.filter(r=>!r.cat);
+  const totalExp=expense.reduce((a,r)=>a+r.amt,0);
+
+  // 내부이체 안내
+  if(internal.length){
+    const intTotal=internal.reduce((a,r)=>a+r.amt,0);
+    const note=$('t2InternalNote');
+    note.style.display='block';
+    note.innerHTML=`💡 <strong>내부이체</strong> ${internal.map(r=>r.desc+'('+fmt(r.amt)+'원)').join(' / ')} → 순이익 계산 제외`;
+  } else {$('t2InternalNote').style.display='none';}
+
+  // 미분류 배너
+  const banner=$('t2UnclsBanner');
+  if(unclassified.length){banner.style.display='flex';$('t2UnclsCount').textContent=unclassified.length+'건';}
+  else banner.style.display='none';
+
+  // 매출 입력
+  const rev=t2RevData[t2CurMonth]||0;
+  const wrap=$('t2RevInputWrap');
+  if(t2CurMonth===0){
+    // 전체: 1~12월 그리드
+    const revs=Array.from({length:12},(_,i)=>t2RevData[i+1]||0);
+    wrap.innerHTML=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:6px">${Array.from({length:6},(_,i)=>`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i]}</span><input class="money-input" style="border-color:#A7F3D0;font-size:11px" value="${revs[i]?revs[i].toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${i+1},this)"></div>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${Array.from({length:6},(_,i)=>`<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i+6]}</span><input class="money-input" style="border-color:#A7F3D0;font-size:11px" value="${revs[i+6]?revs[i+6].toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${i+7},this)"></div>`).join('')}</div>`;
   } else {
-    $("scoreIframe").parentElement.style.display="none";
-    $("scoreHolder").style.display="block";
+    wrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:700;color:#2D7A62">${t2CurMonth}월 수강료</span><input class="money-input" style="border-color:#A7F3D0;font-size:15px;font-weight:900" value="${rev?rev.toLocaleString('ko-KR'):''}" placeholder="0" oninput="onRevNew(${t2CurMonth},this)"><span style="font-size:10px;color:var(--text3)">입력 후 순이익 자동계산</span></div>`;
   }
-}
-function connectScore(){
-  const url=($("scoreUrl").value||"").trim();
-  if(!url||!url.startsWith("http")){alert("올바른 URL을 입력해주세요 (http:// 또는 https://)");return;}
-  localStorage.setItem(SCORE_URL_KEY,url);
-  $("scoreIframe").src=url;
-  $("scoreHolder").style.display="none";
-  $("scoreWrap").style.display="block";
-}
-function loadScoreLocal(){
-  const inp=document.createElement("input");inp.type="file";inp.accept=".html";
-  inp.onchange=()=>{if(inp.files[0])$("scoreIframe").src=URL.createObjectURL(inp.files[0]);$("scoreHolder").style.display="none";$("scoreIframe").parentElement.style.display="block";};
-  inp.click();
+
+  // 요약 카드
+  const totalRev=t2CurMonth===0?Object.values(t2RevData).reduce((a,b)=>a+b,0):(t2RevData[t2CurMonth]||0);
+  const net=totalRev-totalExp;
+  const rate=totalRev>0?(net/totalRev*100).toFixed(1):null;
+  const mLabel=t2CurMonth===0?'연간':'${t2CurMonth}월';
+  $('t2RevLabel').textContent=(t2CurMonth===0?'연간':t2CurMonth+'월')+' 매출';
+  $('t2ExpLabel').textContent=(t2CurMonth===0?'연간':t2CurMonth+'월')+' 실지출';
+  $('t2NetLabel').textContent=(t2CurMonth===0?'연간':t2CurMonth+'월')+' 순이익';
+  $('t2RevVal').textContent=totalRev?fmt(totalRev)+'원':'—';
+  $('t2ExpVal').textContent=totalExp?fmt(totalExp)+'원':'—';
+  $('t2NetVal').textContent=totalRev&&totalExp?(net>=0?'+':'')+fmt(net)+'원':'—';
+  $('t2NetVal').style.color=net>=0?'var(--green)':'var(--red)';
+  $('t2RateVal').textContent=rate?rate+'%':'—';
+  if(rate){
+    const rateEl=$('t2RateVal');
+    rateEl.style.color=parseFloat(rate)>=50?'var(--green)':parseFloat(rate)>=30?'var(--gold)':'var(--red)';
+  }
+
+  // 지출 테이블
+  if(rows.length){
+    $('t2ExpCard').style.display='block';
+    $('t2ExpCardLabel').textContent=`(${label} ${rows.length}건)`;
+    renderT2Table(rows);
+  } else $('t2ExpCard').style.display='none';
+
+  // 카테고리 요약
+  renderT2CatSummary(expense);
+
+  // 차트
+  buildT2Chart();
 }
 
-// ── 강사 보수
-function loadSal(){const m=$("t3m").value,yr=curYr,t=$("salT").value,s=(ld("sal",{})[yr]||{})[`${m}-${t}`]||{};$("sBase").value=s.base||"";upSP();}
-function upSP(){const b=+$("sBase").value||0;const d=Math.round(b*0.033);$("salPre").textContent=`용역비 공제: ${fmt(d)}원  |  실지급: ${fmt(b-d)}원`;}
-function saveSal(){const m=$("t3m").value,yr=curYr,t=$("salT").value,s=ld("sal",{});if(!s[yr])s[yr]={};s[yr][`${m}-${t}`]={base:+$("sBase").value||0};sv("sal",s);rT3();}
-function rT3(){
-  const m=$("t3m").value,yr=curYr,sal=(ld("sal",{})[yr])||{};
-  const rows=TC.map(t=>{const s=sal[`${m}-${t}`]||{};const base=s.base||0;const d=Math.round(base*0.033);return{t,base,d,net:base-d};});
-  const total=rows.reduce((a,r)=>a+r.net,0);
-  const totalPre=rows.reduce((a,r)=>a+r.base,0);
-  $("t3tot").textContent=fmt(total)+"원";
-  // 세전 합계, 연간 합계
-  if($("t3totPre"))$("t3totPre").textContent=fmt(totalPre)+"원";
-  const yt=MO.map((_,i)=>{const mi=i+1;return TC.reduce((a,t)=>{const s=sal[`${mi}-${t}`]||{};const b=s.base||0;return a+(b-Math.round(b*0.033));},0);});
-  const yrTotal=yt.reduce((a,b)=>a+b,0);
-  if($("t3totYr"))$("t3totYr").textContent=fmt(yrTotal)+"원";
-  $("t3tb").innerHTML=rows.map(({t,base,d,net})=>`<tr onclick="$('salT').value='${t}';loadSal()">
-    <td>${t}</td>
-    <td>${fmt(base)}</td>
-    <td style="color:var(--red)">${fmt(d)}</td>
-    <td style="font-weight:700;color:${net>0?"var(--navy)":"var(--text3)"}">${fmt(net)}</td>
-  </tr>`).join("");
-  const mx=Math.max(...yt,1);const cm=+m;
-  $("t3ch").innerHTML=yt.map((v,i)=>{
-    const lbl=v?`<span style="font-size:8px;font-weight:700;color:${i+1===cm?"var(--navy)":"var(--text2)"};">${(v/10000).toFixed(0)}만</span>`:"";
-    const bar=v?`<div class="b" style="background:${i+1===cm?"var(--navy)":"var(--border2)"};height:${Math.max(v/mx*70,3)}px;width:100%"></div>`:"";
-    return`<div class="bg"><div class="bi" style="height:85px;flex-direction:column;align-items:center;justify-content:flex-end">${lbl}${bar}</div><span class="bl ${i+1===cm?"hi":""}">${i+1}</span></div>`;
-  }).join("");
-  // 강사별 셀렉트 초기화
-  if($("t3TcSel")&&$("t3TcSel").options.length===0){
-    TC.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;$("t3TcSel").appendChild(o);});
+function renderT2Table(rows){
+  const showing=window._t2Filter==='uncls'?rows.filter(r=>!r.cat):rows;
+  $('t2ExpTbody').innerHTML=showing.map(r=>{
+    const unc=!r.cat;
+    const opts=CATS.map(c=>`<option value="${c}" ${r.cat===c?'selected':''}>${c}</option>`).join('');
+    const realIdx=t2ExpRows.indexOf(r);
+    return`<tr class="${unc?'exp-uncls':''}">
+      <td style="color:var(--text3);white-space:nowrap">${r.date.slice(5)}</td>
+      <td>${r.desc}${unc?'<span style="font-size:10px;color:#F59E0B;margin-left:4px">▶분류필요</span>':''}</td>
+      <td style="text-align:right;font-weight:700;color:${r.cat==='내부이체'?'var(--text3)':'var(--text1)'}">${fmt(r.amt)}원</td>
+      <td><span style="font-size:10px;padding:1px 6px;border-radius:4px;font-weight:700;background:${r.bank==='기업'?'#EFF6FF':r.bank==='신한'?'#FFF1F2':'#F0FDF4'};color:${r.bank==='기업'?'#1E40AF':r.bank==='신한'?'#9B1C1C':'#065F46'}">${r.bank}</span></td>
+      <td><select class="cat-sel ${unc?'unset':'set'}" onchange="t2SetCat(${realIdx},this.value,this,'${r.desc.replace(/'/g,"\'")}')">
+        ${unc?'<option value="">-- 선택 --</option>':''}${opts}</select></td>
+    </tr>`;
+  }).join('');
+}
+
+function t2SetCat(idx,val,el,desc){
+  t2ExpRows[idx].cat=val;
+  el.className='cat-sel '+(val?'set':'unset');
+  if(val){
+    t2CatMapping[desc]=val;
+    localStorage.setItem('choi_cat_map',JSON.stringify(t2CatMapping));
+    // 같은 적요 자동 적용
+    t2ExpRows.forEach((r,i)=>{if(r.desc===desc&&!r.cat){t2ExpRows[i].cat=val;}});
   }
-  rT3Tc();
-  loadSal();
+  saveT2ExpRows();
+  renderT2();
 }
-function rT3Tc(){
-  const t=$("t3TcSel")?$("t3TcSel").value:TC[0];
-  const yr=curYr,sal=(ld("sal",{})[yr])||{};
-  const rows=MO.map((_,i)=>{const mi=i+1,s=sal[`${mi}-${t}`]||{};const base=s.base||0,d=Math.round(base*0.033);return{mi,base,d,net:base-d};});
-  const yrTot=rows.reduce((a,r)=>a+r.net,0);
-  if($("t3TcBody"))$("t3TcBody").innerHTML=rows.map(({mi,base,d,net})=>`<tr>
-    <td style="color:var(--text2)">${mi}월</td>
-    <td>${fmt(base)}</td>
-    <td style="color:var(--red)">${fmt(d)}</td>
-    <td style="font-weight:700;color:${net>0?"var(--navy)":"var(--text3)"}">${fmt(net)}</td>
-  </tr>`).join("");
-  if($("t3TcYrTot"))$("t3TcYrTot").textContent=fmt(yrTot)+"원";
-  // 강사별 월별 그래프
-  if($("t3TcCh")){
-    const nets=rows.map(r=>r.net);
-    const mx2=Math.max(...nets,1);
-    $("t3TcCh").innerHTML=rows.map(({mi,net})=>{
-      const h=net?Math.max(net/mx2*70,3):0;
-      const lbl=net?`<span style="font-size:8px;font-weight:700;color:var(--navy)">${(net/10000).toFixed(0)}만</span>`:"";
-      const bar=net?`<div class="b" style="background:var(--navy);height:${h}px;width:100%;border-radius:2px 2px 0 0"></div>`:"";
-      return`<div class="bg"><div class="bi" style="height:85px;flex-direction:column;align-items:center;justify-content:flex-end">${lbl}${bar}</div><span class="bl">${mi}</span></div>`;
-    }).join("");
-  }
+
+function t2FilterAll(){window._t2Filter='all';renderT2Table(getT2Rows());}
+function t2FilterUncls(){window._t2Filter='uncls';renderT2Table(getT2Rows());}
+
+function renderT2CatSummary(rows){
+  if(!rows.length){$('t2CatCard').style.display='none';return;}
+  $('t2CatCard').style.display='block';
+  const cats={};
+  rows.forEach(r=>{if(r.cat){if(!cats[r.cat])cats[r.cat]=0;cats[r.cat]+=r.amt;}});
+  const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const total=sorted.reduce((a,b)=>a+b[1],0);
+  $('t2CatGrid').innerHTML=sorted.map(([cat,amt])=>`
+    <div style="background:${CAT_BG[cat]||'#F9FAFB'};border-radius:8px;padding:10px 12px;border-left:3px solid ${CAT_TC[cat]||'#9CA3AF'}">
+      <div style="font-size:10px;font-weight:700;color:${CAT_TC[cat]||'#6B7280'};margin-bottom:3px">${cat}</div>
+      <div style="font-size:14px;font-weight:900;color:var(--text1)">${(amt/10000).toFixed(0)}만원</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:1px">${(amt/total*100).toFixed(1)}%</div>
+    </div>`).join('');
 }
-// ══ T7 핀 관리 ══
-let pinVisible=false;
-function togglePin(){
-  pinVisible=!pinVisible;
-  $("curPinView").textContent=pinVisible?PIN:"****";
-  $("pinToggleBtn").textContent=pinVisible?"숨기기":"보기";
+
+function onRevNew(mi,el){
+  const pos=el.selectionStart,oldLen=el.value.length;
+  const raw=el.value.replace(/[^0-9]/g,'');
+  const num=parseInt(raw)||0;
+  el.value=num?num.toLocaleString('ko-KR'):'';
+  const newLen=el.value.length;
+  try{el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));}catch(e){}
+  t2RevData[mi]=num;
+  if(!num) delete t2RevData[mi];
+  localStorage.setItem('choi_rev_'+curYr,JSON.stringify(t2RevData));
+  renderT2();
 }
-function changePin(){
-  const p1=$("newPin1").value.trim(),p2=$("newPin2").value.trim();
-  const msg=$("pinChgMsg");
-  if(p1.length!==4){msg.style.color="var(--red)";msg.textContent="4자리 숫자를 입력해주세요";return;}
-  if(p1!==p2){msg.style.color="var(--red)";msg.textContent="핀번호가 일치하지 않습니다";return;}
-  PIN=p1;
-  localStorage.setItem("dash_pin",p1);
-  msg.style.color="var(--green)";msg.textContent="✓ 핀번호가 변경되었습니다";
-  $("newPin1").value="";$("newPin2").value="";
-  if(pinVisible){$("curPinView").textContent=PIN;}else{$("curPinView").textContent="****";}
-  setTimeout(()=>msg.textContent="",3000);
+
+function buildT2Chart(){
+  const yt=MO.map((_,i)=>{
+    const mi=i+1;
+    const rev=t2RevData[mi]||0;
+    const exp=t2ExpRows.filter(r=>r.month===mi&&r.cat!=='내부이체').reduce((a,r)=>a+r.amt,0);
+    const net=rev-exp;
+    return{rev,exp,net};
+  });
+  const mx=Math.max(...yt.flatMap(v=>[v.rev,v.exp]),1);
+  const cm=t2CurMonth;
+  $('t2ch').innerHTML=yt.map((v,i)=>{
+    const mi=i+1;
+    const rH=v.rev?Math.max(v.rev/mx*90,3):0;
+    const eH=v.exp?Math.max(v.exp/mx*90,3):0;
+    const nH=Math.abs(v.net)?Math.max(Math.abs(v.net)/mx*90,3):0;
+    const isOn=mi===cm;
+    return`<div class="bg"><div class="bi" style="height:95px;align-items:flex-end;gap:1px">
+      ${v.rev?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><span style="font-size:7px;font-weight:700;color:var(--green);margin-bottom:1px">${(v.rev/10000).toFixed(0)}</span><div style="width:7px;height:${rH}px;background:var(--green);border-radius:2px 2px 0 0;opacity:${isOn?1:0.6}"></div></div>`:''}
+      ${v.exp?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><span style="font-size:7px;font-weight:700;color:var(--red);margin-bottom:1px">${(v.exp/10000).toFixed(0)}</span><div style="width:7px;height:${eH}px;background:var(--red);border-radius:2px 2px 0 0;opacity:${isOn?1:0.6}"></div></div>`:''}
+      ${v.net?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><span style="font-size:7px;font-weight:700;color:var(--navy);margin-bottom:1px">${(v.net/10000).toFixed(0)}</span><div style="width:7px;height:${nH}px;background:${v.net>=0?'var(--navy)':'#F87171'};border-radius:2px 2px 0 0;opacity:${isOn?1:0.6}"></div></div>`:''}
+    </div><span class="bl ${isOn?'hi':''}">${mi}</span></div>`;
+  }).join('');
 }
-function initPinMgmt(){
-  $("curPinView").textContent="****";
-  pinVisible=false;
+
+function initT2(){
+  loadT2ExpRows();
+  t2RevData=JSON.parse(localStorage.getItem('choi_rev_'+curYr)||'{}');
+  renderT2();
 }
-</script>
-</body>
-</html>
+
+// 기존 buildRevGrid, buildAcct 는 더 이상 사용 안함 (T2 신규로 대체)
+function buildRevGrid(){}
+function buildAcct(){}
+
+
