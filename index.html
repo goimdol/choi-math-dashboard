@@ -434,31 +434,28 @@ textarea{resize:vertical;min-height:64px}
   <!-- 내부이체/공과금 안내 -->
   <div id="t2InternalNote" style="display:none;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;font-size:11px;color:#1E40AF;margin-bottom:12px"></div>
 
-  <!-- 내부이체 별도 카드 -->
-  <div class="card" id="t2TransferCard" style="display:none;border-left:3px solid #6366F1">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="card-title" style="margin:0;color:#4338CA">🔄 개인기업·모으는기업 이체 (지출·순이익 제외)</div>
-      <span style="font-size:11px;color:var(--text3)" id="t2TransferLabel"></span>
+  <!-- 내부이체 별도 카드 (항상 표시) -->
+  <div class="card" style="border-left:3px solid #6366F1">
+    <div class="card-title" style="color:#4338CA;margin-bottom:12px">🔄 내부이체 (개인기업·모으는기업) — 지출·순이익 제외</div>
+    <!-- 월별 직접 입력 그리드 -->
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:#4338CA;margin-bottom:8px">월별 이체 금액 직접 입력</div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:6px" id="t2TrGrid1"></div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px" id="t2TrGrid2"></div>
     </div>
-    <div style="overflow-x:auto;max-height:200px;overflow-y:auto">
+    <!-- 거래내역 자동 반영 안내 -->
+    <div id="t2TransferAutoNote" style="display:none;background:#EEF2FF;border-radius:6px;padding:7px 10px;font-size:11px;color:#4338CA;margin-bottom:8px"></div>
+    <!-- 거래내역 테이블 (업로드 시) -->
+    <div id="t2TransferTableWrap" style="display:none;max-height:180px;overflow-y:auto;margin-bottom:8px">
       <table class="acct-table" style="min-width:400px">
         <thead><tr><th>날짜</th><th>적요</th><th style="text-align:right">금액</th><th>은행</th></tr></thead>
         <tbody id="t2TransferBody"></tbody>
       </table>
     </div>
-    <div style="margin-top:8px;padding:8px 12px;background:#EEF2FF;border-radius:6px;display:flex;justify-content:space-between;font-size:12px">
-      <span style="color:#4338CA;font-weight:700">월 합계</span>
-      <span style="color:#4338CA;font-weight:900" id="t2TransferTotal">—</span>
-    </div>
-    <!-- 연간 내부이체 현황 -->
-    <div style="margin-top:12px">
-      <div style="font-size:11px;font-weight:700;color:#4338CA;margin-bottom:6px">연간 내부이체 현황</div>
-      <div id="t2TransferYrGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px"></div>
-      <div style="margin-top:6px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px" id="t2TransferYrGrid2"></div>
-      <div style="margin-top:8px;padding:6px 10px;background:#EEF2FF;border-radius:6px;display:flex;justify-content:space-between;font-size:11px">
-        <span style="color:#4338CA;font-weight:700">연간 합계</span>
-        <span style="color:#4338CA;font-weight:900" id="t2TransferYrTotal">—</span>
-      </div>
+    <!-- 연간 합계 -->
+    <div style="padding:8px 12px;background:#EEF2FF;border-radius:6px;display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:#4338CA;font-weight:700">연간 총 이체액</span>
+      <span style="color:#4338CA;font-weight:900" id="t2TransferYrTotal">—</span>
     </div>
   </div>
 
@@ -733,7 +730,7 @@ function initApp(){
   setGrp("elem");
   rT1();initT2();initT3();initScore();initPinMgmt();
 }
-function setYr(){curYr=$("yrSel").value;t2RevData=JSON.parse(localStorage.getItem("choi_rev_"+curYr)||"{}");loadT2ExpRows();rT1();renderT2();initT3();}
+function setYr(){curYr=$("yrSel").value;t2RevData=JSON.parse(localStorage.getItem("choi_rev_"+curYr)||"{}");loadT2ExpRows();renderTransferGrid();rT1();renderT2();initT3();}
 function go(id,btn){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
@@ -1052,35 +1049,40 @@ function renderT2(){
   if(unclassified.length){banner.style.display='flex';$('t2UnclsCount').textContent=unclassified.length+'건';}
   else banner.style.display='none';
 
-  // 내부이체 별도 카드 렌더링
-  const transferCard=$('t2TransferCard');
+  // 내부이체 거래내역 자동 반영 (직접입력과 병행)
   if(internal.length){
-    transferCard.style.display='block';
-    const intTotal=internal.reduce((a,r)=>a+r.amt,0);
-    $('t2TransferLabel').textContent=t2CurMonth===0?'연간':t2CurMonth+'월';
-    $('t2TransferBody').innerHTML=internal.map(r=>`<tr>
+    // 거래내역에서 감지된 내부이체 → 직접입력 그리드에 자동 반영 (덮어쓰기)
+    const d=getTransferData();
+    // 월별 합산
+    const autoByMonth={};
+    internal.forEach(r=>{
+      if(!autoByMonth[r.month]) autoByMonth[r.month]=0;
+      autoByMonth[r.month]+=r.amt;
+    });
+    // 직접입력 그리드 업데이트 (포커스 중인 셀 제외)
+    Object.entries(autoByMonth).forEach(([mi,amt])=>{
+      d[parseInt(mi)]=amt;
+      const el=document.querySelector(`input[data-tr-mi="${mi}"]`);
+      if(el&&document.activeElement!==el) el.value=amt?amt.toLocaleString('ko-KR'):'';
+    });
+    setTransferData(d);
+    // 거래내역 테이블 표시
+    if($('t2TransferTableWrap')) $('t2TransferTableWrap').style.display='block';
+    if($('t2TransferBody')) $('t2TransferBody').innerHTML=internal.map(r=>`<tr>
       <td style="color:var(--text3);white-space:nowrap">${r.date.slice(5)}</td>
       <td style="font-weight:600">${r.desc}</td>
       <td style="text-align:right;font-weight:700;color:#4338CA">${fmt(r.amt)}원</td>
       <td><span style="font-size:10px;padding:1px 6px;border-radius:4px;font-weight:700;background:${r.bank==='기업'?'#EFF6FF':r.bank==='신한'?'#FFF1F2':'#F0FDF4'};color:${r.bank==='기업'?'#1E40AF':r.bank==='신한'?'#9B1C1C':'#065F46'}">${r.bank}</span></td>
     </tr>`).join('');
-    $('t2TransferTotal').textContent=fmt(intTotal)+'원';
-    // 연간 월별 내부이체
-    const yrTransfer=Array.from({length:12},(_,i)=>{
-      const mi=i+1;
-      return t2ExpRows.filter(r=>r.cat==='내부이체'&&r.month===mi).reduce((a,r)=>a+r.amt,0);
-    });
-    const yrTransTotal=yrTransfer.reduce((a,b)=>a+b,0);
-    $('t2TransferYrTotal').textContent=fmt(yrTransTotal)+'원';
-    const mkCell=(i)=>`<div style="display:flex;flex-direction:column;gap:2px;text-align:center">
-      <span style="font-size:9px;font-weight:700;color:#4338CA">${MO[i]}</span>
-      <span style="font-size:11px;font-weight:700;color:${yrTransfer[i]?'#4338CA':'var(--text3)'}">${yrTransfer[i]?(yrTransfer[i]/10000).toFixed(0)+'만':'—'}</span>
-    </div>`;
-    $('t2TransferYrGrid').innerHTML=Array.from({length:6},(_,i)=>mkCell(i)).join('');
-    $('t2TransferYrGrid2').innerHTML=Array.from({length:6},(_,i)=>mkCell(i+6)).join('');
+    if($('t2TransferAutoNote')){
+      $('t2TransferAutoNote').style.display='block';
+      $('t2TransferAutoNote').textContent='거래내역에서 '+internal.length+'건 자동 반영됨 — 직접 수정도 가능합니다';
+    }
   } else {
-    if(transferCard) transferCard.style.display='none';
+    if($('t2TransferTableWrap')) $('t2TransferTableWrap').style.display='none';
+    if($('t2TransferAutoNote')) $('t2TransferAutoNote').style.display='none';
   }
+  updateTransferTotal();
 
   // 매출 입력 - 포커스 중인 input은 재생성 안함
   const wrap=$('t2RevInputWrap');
@@ -1256,6 +1258,7 @@ function buildT2Chart(){
 function initT2(){
   loadT2ExpRows();
   t2RevData=JSON.parse(localStorage.getItem('choi_rev_'+curYr)||'{}');
+  renderTransferGrid();
   renderT2();
 }
 
@@ -1474,6 +1477,44 @@ function doLogout(){
   for(let i=0;i<4;i++){const d=$("d"+i);if(d)d.classList.remove("filled");}
   if($("pinErr"))$("pinErr").textContent="";
 }
+
+// ══ 내부이체 직접 입력 ══
+function getTransferData(){return JSON.parse(localStorage.getItem('choi_transfer_'+curYr)||'{}');}
+function setTransferData(d){localStorage.setItem('choi_transfer_'+curYr,JSON.stringify(d));}
+
+function onTransferInput(mi,el){
+  const pos=el.selectionStart,oldLen=el.value.length;
+  const raw=el.value.replace(/[^0-9]/g,'');
+  const num=parseInt(raw)||0;
+  el.value=num?num.toLocaleString('ko-KR'):'';
+  const newLen=el.value.length;
+  try{el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));}catch(e){}
+  const d=getTransferData();
+  d[mi]=num;
+  if(!num) delete d[mi];
+  setTransferData(d);
+  updateTransferTotal();
+}
+
+function updateTransferTotal(){
+  const d=getTransferData();
+  const total=Object.values(d).reduce((a,b)=>a+(b||0),0);
+  if($('t2TransferYrTotal'))$('t2TransferYrTotal').textContent=total?fmt(total)+'원':'—';
+}
+
+function renderTransferGrid(){
+  const d=getTransferData();
+  const mkCell=(i)=>`<div style="display:flex;flex-direction:column;gap:2px">
+    <span style="font-size:10px;font-weight:700;color:#4338CA">${MO[i]}</span>
+    <input class="money-input" data-tr-mi="${i+1}" style="border-color:#C7D2FE;font-size:11px"
+      value="${d[i+1]?d[i+1].toLocaleString('ko-KR'):''}" placeholder="0"
+      oninput="onTransferInput(${i+1},this)">
+  </div>`;
+  if($('t2TrGrid1'))$('t2TrGrid1').innerHTML=Array.from({length:6},(_,i)=>mkCell(i)).join('');
+  if($('t2TrGrid2'))$('t2TrGrid2').innerHTML=Array.from({length:6},(_,i)=>mkCell(i+6)).join('');
+  updateTransferTotal();
+}
+
 </script>
 </body>
 </html>
