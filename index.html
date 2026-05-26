@@ -437,7 +437,7 @@ textarea{resize:vertical;min-height:64px}
   <!-- 내부이체 별도 카드 -->
   <div class="card" id="t2TransferCard" style="display:none;border-left:3px solid #6366F1">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="card-title" style="margin:0;color:#4338CA">🔄 내부이체 현황 (순이익 제외)</div>
+      <div class="card-title" style="margin:0;color:#4338CA">🔄 개인기업·모으는기업 이체 (지출·순이익 제외)</div>
       <span style="font-size:11px;color:var(--text3)" id="t2TransferLabel"></span>
     </div>
     <div style="overflow-x:auto;max-height:200px;overflow-y:auto">
@@ -900,7 +900,7 @@ function getAD(){return ld("acct_"+curYr,{});}
 function setAD(d){sv("acct_"+curYr,d);}
 // ══ T2 매출·순이익 (신규) ══
 const CATS=['강사보수','임차료','교재비','통신비','복사기임대','식비','4대보험/세금','세무기장비','방역비','네이버페이','곗돈/보험','지입기사','환불','내부이체','공과금','기타','삭제'];
-const KW_MAP={'용역비':'강사보수','보수':'강사보수','주차비':'강사보수','지입실장':'강사보수','이봉희':'지입기사','조광수':'지입기사','월세':'임차료','관리비':'임차료','매쓰홀릭':'교재비','대교에듀':'교재비','내신코치':'교재비','KT통신':'통신비','SK인텔릭스':'통신비','신도정보':'복사기임대','식사비':'식비','굿푸드':'식비','국민연금':'4대보험/세금','국민건강':'4대보험/세금','피플택스':'세무기장비','세스코':'방역비','네이버페이':'네이버페이','곗돈':'곗돈/보험','보험':'곗돈/보험','모으는기업':'내부이체','신한공과금':'내부이체','개인기업':'내부이체','청주시':'공과금','공과금':'공과금','환불':'환불'};
+const KW_MAP={'용역비':'강사보수','보수':'강사보수','주차비':'강사보수','지입실장':'지입기사','지입기사':'지입기사','이봉희':'지입기사','조광수':'지입기사','월세':'임차료','관리비':'임차료','매쓰홀릭':'교재비','대교에듀':'교재비','내신코치':'교재비','KT통신':'통신비','SK인텔릭스':'통신비','신도정보':'복사기임대','식사비':'식비','굿푸드':'식비','국민연금':'4대보험/세금','국민건강':'4대보험/세금','피플택스':'세무기장비','세스코':'방역비','네이버페이':'네이버페이','곗돈':'곗돈/보험','보험':'곗돈/보험','모으는기업':'내부이체','신한공과금':'내부이체','개인기업':'내부이체','청주시':'공과금','공과금':'공과금','환불':'환불'};
 const CAT_BG={'강사보수':'#DBEAFE','임차료':'#FEF3C7','교재비':'#D1FAE5','통신비':'#EDE9FE','복사기임대':'#FCE7F3','식비':'#FEF9C3','4대보험/세금':'#FFE4E6','세무기장비':'#F3F4F6','방역비':'#ECFDF5','네이버페이':'#E0F2FE','곗돈/보험':'#FDF2F8','지입기사':'#FFF1F2','환불':'#FFF7ED','내부이체':'#F1F5F9','공과금':'#F0F9FF','기타':'#F9FAFB','삭제':'#FEF2F2'};
 const CAT_TC={'강사보수':'#1E40AF','임차료':'#92400E','교재비':'#065F46','통신비':'#5B21B6','복사기임대':'#9D174D','식비':'#78350F','4대보험/세금':'#9B1C1C','세무기장비':'#374151','방역비':'#064E3B','네이버페이':'#0C4A6E','곗돈/보험':'#831843','지입기사':'#9B1C1C','환불':'#92400E','내부이체':'#475569','공과금':'#0C4A6E','기타':'#6B7280','삭제':'#991B1B'};
 
@@ -911,6 +911,9 @@ let t2RevData=JSON.parse(localStorage.getItem('choi_rev_'+curYr)||'{}'); // {1:5
 
 function autoClassify(desc){
   if(t2CatMapping[desc]) return t2CatMapping[desc];
+  // 개인기업/모으는기업 패턴 (순서 중요 - 먼저 체크)
+  if(desc.includes('모으는')&&desc.includes('기업')) return '내부이체';
+  if(desc.includes('개인')&&desc.includes('기업')) return '내부이체';
   for(const [kw,cat] of Object.entries(KW_MAP)){if(desc.includes(kw)) return cat;}
   return '';
 }
@@ -1406,7 +1409,6 @@ function autoImportSal(){
     setTimeout(()=>msg.textContent="",3000);
     return;
   }
-  // 강사보수 카테고리만 필터
   const salRows=t2ExpRows.filter(r=>r.cat==="강사보수");
   if(!salRows.length){
     msg.style.color="var(--red)";
@@ -1414,30 +1416,39 @@ function autoImportSal(){
     setTimeout(()=>msg.textContent="",3000);
     return;
   }
-  // 기준일 가져오기
   const cutDay=parseInt(localStorage.getItem("sal_cut_day")||"5");
+  // 기존 자동입력 데이터 초기화 후 새로 계산 (중복 방지)
   const sal=getSal();
   if(!sal[curYr])sal[curYr]={};
-  let count=0;
+  // 자동입력으로 채워질 키 목록 먼저 초기화
+  const autoKeys=new Set();
   salRows.forEach(r=>{
-    // 강사명 추출 (TC 목록에서 매칭)
     const teacher=TC.find(t=>r.desc.includes(t.replace("T","")||t));
     if(!teacher) return;
-    // 날짜 파싱
     const date=new Date(r.date);
     const day=date.getDate();
-    const month=date.getMonth()+1; // 1~12
-    // 방법B: 기준일 이전이면 전월 보수
+    const month=date.getMonth()+1;
+    const targetMonth=day<=cutDay?(month===1?12:month-1):month;
+    autoKeys.add(targetMonth+"-"+teacher);
+  });
+  // 해당 키 초기화
+  autoKeys.forEach(k=>{sal[curYr][k]={base:0};});
+  // 다시 합산
+  let count=0;
+  salRows.forEach(r=>{
+    const teacher=TC.find(t=>r.desc.includes(t.replace("T","")||t));
+    if(!teacher) return;
+    const date=new Date(r.date);
+    const day=date.getDate();
+    const month=date.getMonth()+1;
     const targetMonth=day<=cutDay?(month===1?12:month-1):month;
     const key=targetMonth+"-"+teacher;
-    // 기존값과 합산 (같은 강사 여러 건 있을 수 있음)
-    const existing=sal[curYr][key]||{base:0};
-    sal[curYr][key]={base:(existing.base||0)+r.amt};
+    sal[curYr][key]={base:(sal[curYr][key].base||0)+r.amt};
     count++;
   });
   setSal(sal);
   msg.style.color="var(--green)";
-  msg.textContent=`✓ ${count}건 자동 입력 완료`;
+  msg.textContent=`✓ ${count}건 입력 완료 (기존 자동입력 데이터 교체)`;
   setTimeout(()=>msg.textContent="",3000);
   rT3();
 }
