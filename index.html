@@ -674,7 +674,22 @@ const p2=n=>String(n).padStart(2,"0");
 const mOf=s=>s?parseInt(s.split("-")[1]):new Date().getMonth()+1;
 const yrOf=s=>s?s.split("-")[0]:"";
 const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}};
-const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+const sv=(k,v)=>{
+  try{localStorage.setItem(k,JSON.stringify(v));}catch{}
+  // 대시보드 핵심 데이터 Firebase 동기화
+  if(k==='stu'&&db){
+    db.collection('dashboard_data').doc('stu_'+curYr).set({data:v,updatedAt:Date.now()}).catch(e=>console.warn('FB stu 저장 오류:',e));
+  }
+  if(k==='sal'&&db){
+    const yr=curYr;
+    if(v[yr]) db.collection('dashboard_data').doc(yr+'_sal').set({data:v[yr],updatedAt:Date.now()}).catch(e=>console.warn('FB sal 저장 오류:',e));
+  }
+};
+// Firebase 비동기 저장/로드
+async function fbSet(col,docId,data){try{if(db)await db.collection(col).doc(docId).set(data,{merge:true});}catch(e){console.warn('fbSet 오류:',e);}}
+async function fbGet(col,docId){try{if(!db)return null;const d=await db.collection(col).doc(docId).get();return d.exists?d.data():null;}catch(e){console.warn('fbGet 오류:',e);return null;}}
+// 대시보드 데이터 컬렉션: dashboard_data
+// 문서 ID 규칙: {year}_{key} (예: 2026_exp, 2026_rev, 2026_sal, 2026_transfer, cat_map)
 const $=id=>document.getElementById(id);
 let db=null,curYr="2026",_notes=[],_evs=[];
 
@@ -720,7 +735,7 @@ function initFirebase(){
 }
 
 // ── 앱 초기화
-function initApp(){
+async function initApp(){
   initFirebase();
   const cm=new Date().getMonth()+1;
   ["t1m","t3m"].forEach(id=>{$(id).innerHTML=MO.map((m,i)=>`<option value="${i+1}"${i+1===cm?" selected":""}>${m}</option>`).join("");});
@@ -728,9 +743,14 @@ function initApp(){
   $("t1tc").innerHTML=`<option>전체</option>`+TC.map(t=>`<option>${t}</option>`).join("");
   $("sDt").value=td();
   setGrp("elem");
-  rT1();initT2();initT3();initScore();initPinMgmt();
+  // 신입/퇴원 Firebase 로드
+  const stuFb=await fbGet('dashboard_data','stu_'+curYr);
+  if(stuFb&&stuFb.data&&stuFb.data.length) sv('stu',stuFb.data);
+  rT1();
+  await initT2();
+  initT3();initScore();initPinMgmt();
 }
-function setYr(){curYr=$("yrSel").value;t2RevData=JSON.parse(localStorage.getItem("choi_rev_"+curYr)||"{}");loadT2ExpRows();renderTransferGrid();rT1();renderT2();initT3();}
+async function setYr(){curYr=$("yrSel").value;await initT2();rT1();initT3();}
 function go(id,btn){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
@@ -1004,8 +1024,20 @@ async function handleExpFileNew(input){
   renderT2();
 }
 
-function saveT2ExpRows(){localStorage.setItem('choi_exp_'+curYr,JSON.stringify(t2ExpRows));}
-function loadT2ExpRows(){t2ExpRows=JSON.parse(localStorage.getItem('choi_exp_'+curYr)||'[]');}
+function saveT2ExpRows(){
+  localStorage.setItem('choi_exp_'+curYr,JSON.stringify(t2ExpRows));
+  fbSet('dashboard_data',curYr+'_exp',{rows:t2ExpRows,updatedAt:Date.now()});
+}
+async function loadT2ExpRows(){
+  // Firebase 우선, 없으면 localStorage
+  const fbData=await fbGet('dashboard_data',curYr+'_exp');
+  if(fbData&&fbData.rows&&fbData.rows.length){
+    t2ExpRows=fbData.rows;
+    localStorage.setItem('choi_exp_'+curYr,JSON.stringify(t2ExpRows));
+  } else {
+    t2ExpRows=JSON.parse(localStorage.getItem('choi_exp_'+curYr)||'[]');
+  }
+}
 
 function setT2Month(m,btn){
   t2CurMonth=m;
@@ -1167,6 +1199,7 @@ function t2SetCat(idx,val,el,desc){
   if(val){
     t2CatMapping[desc]=val;
     localStorage.setItem('choi_cat_map',JSON.stringify(t2CatMapping));
+    fbSet('dashboard_data','cat_map',{mapping:t2CatMapping,updatedAt:Date.now()});
     // 같은 적요 자동 적용
     t2ExpRows.forEach((r,i)=>{if(r.desc===desc&&!r.cat){t2ExpRows[i].cat=val;}});
   }
@@ -1204,6 +1237,7 @@ function onRevNew(mi,el){
   t2RevData[mi]=num;
   if(!num) delete t2RevData[mi];
   localStorage.setItem('choi_rev_'+curYr,JSON.stringify(t2RevData));
+  fbSet('dashboard_data',curYr+'_rev',{data:t2RevData,updatedAt:Date.now()});
   // input 재생성 없이 요약카드+차트만 업데이트
   updateT2Summary();
   buildT2Chart();
@@ -1255,9 +1289,31 @@ function buildT2Chart(){
   }).join('');
 }
 
-function initT2(){
-  loadT2ExpRows();
-  t2RevData=JSON.parse(localStorage.getItem('choi_rev_'+curYr)||'{}');
+async function initT2(){
+  // 로딩 표시
+  if($('uploadStatus2')){$('uploadStatus2').textContent='데이터 불러오는 중...';$('uploadStatus2').style.color='var(--text3)';}
+  // 지출내역 Firebase 로드
+  await loadT2ExpRows();
+  // 수강료 매출 Firebase 로드
+  const revFb=await fbGet('dashboard_data',curYr+'_rev');
+  if(revFb&&revFb.data) t2RevData=revFb.data;
+  else t2RevData=JSON.parse(localStorage.getItem('choi_rev_'+curYr)||'{}');
+  // 카테고리 매핑 Firebase 로드
+  const catFb=await fbGet('dashboard_data','cat_map');
+  if(catFb&&catFb.mapping) t2CatMapping=catFb.mapping;
+  // 내부이체 Firebase 로드
+  const trFb=await fbGet('dashboard_data',curYr+'_transfer');
+  if(trFb&&trFb.data){
+    localStorage.setItem('choi_transfer_'+curYr,JSON.stringify(trFb.data));
+  }
+  // 강사보수 Firebase 로드
+  const salFb=await fbGet('dashboard_data',curYr+'_sal');
+  if(salFb&&salFb.data){
+    const salAll=ld('sal',{});
+    salAll[curYr]=salFb.data;
+    sv('sal',salAll);
+  }
+  if($('uploadStatus2'))$('uploadStatus2').textContent='';
   renderTransferGrid();
   renderT2();
 }
@@ -1268,7 +1324,10 @@ function buildAcct(){}
 
 // ══ T3 강사 보수 ══
 function getSal(){return ld("sal",{});}
-function setSal(d){sv("sal",d);}
+function setSal(d){
+  sv("sal",d);
+  fbSet('dashboard_data',curYr+'_sal',{data:d[curYr]||{},updatedAt:Date.now()});
+}
 function loadSal(){
   const t=$("salT")?$("salT").value:"";
   const m=$("t3m")?$("t3m").value:"1";
@@ -1480,7 +1539,10 @@ function doLogout(){
 
 // ══ 내부이체 직접 입력 ══
 function getTransferData(){return JSON.parse(localStorage.getItem('choi_transfer_'+curYr)||'{}');}
-function setTransferData(d){localStorage.setItem('choi_transfer_'+curYr,JSON.stringify(d));}
+function setTransferData(d){
+  localStorage.setItem('choi_transfer_'+curYr,JSON.stringify(d));
+  fbSet('dashboard_data',curYr+'_transfer',{data:d,updatedAt:Date.now()});
+}
 
 function onTransferInput(mi,el){
   const pos=el.selectionStart,oldLen=el.value.length;
