@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>최선생수학학원 대시보드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6F9;
+  --surface:#FFFFFF;
+  --surface2:#F0F2F5;
+  --border:#E8EAED;
+  --border2:#D1D5DB;
+  --text1:#111827;
+  --text2:#4B5563;
+  --text3:#9CA3AF;
+  --navy:#1B2E4B;
+  --navy2:#253D61;
+  --red:#E03535;
+  --gold:#F59E0B;
+  --green:#10B981;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text1);font-size:13px;-webkit-font-smoothing:antialiased}
+
+/* LOGIN */
+.login-wrap{position:fixed;inset:0;background:#F4F6F9;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;border-radius:20px;padding:40px 36px;width:340px;box-shadow:0 8px 40px rgba(0,0,0,.12);text-align:center}
+.login-logo{width:52px;height:52px;background:var(--red);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff;margin:0 auto 16px}
+.login-title{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--text3);margin-bottom:28px}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);transition:all .2s}
+.pin-dot.filled{background:var(--navy);border-color:var(--navy)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.pin-btn{padding:16px;border:1.5px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-size:18px;font-weight:600;font-family:inherit;color:var(--navy);transition:all .15s}
+.pin-btn:hover{background:var(--surface2);border-color:var(--navy)}
+.pin-btn:active{background:var(--navy);color:#fff}
+.pin-btn.del{font-size:14px;color:var(--text2)}
+.pin-err{color:var(--red);font-size:12px;min-height:18px;margin-top:4px}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:0 24px;display:flex;align-items:center;gap:14px;height:56px;position:sticky;top:0;z-index:200}
+.hdr-logo{width:36px;height:36px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;flex-shrink:0}
+.hdr-name{font-size:14px;font-weight:700;color:#fff}
+.hdr-sub{font-size:10px;color:#8CA0BB;margin-top:1px}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.yr-sel{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 10px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;outline:none}
+.yr-sel option{background:var(--navy)}
+.fb-dot{width:7px;height:7px;border-radius:50%;background:#6B7280}
+.fb-dot.ok{background:#34D399}
+.fb-label{font-size:11px;color:#8CA0BB}
+
+/* TABS */
+.tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 18px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);border-radius:10px;white-space:nowrap;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:7px}
+.tab:hover{border-color:var(--navy);color:var(--navy)}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700}
+
+/* CONTENT */
+.content{padding:20px;max-width:1200px;margin:0 auto}
+.panel{display:none;animation:fu .2s ease}.panel.on{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.col-form{flex:0 0 268px}
+.col-main{flex:1;min-width:0}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:18px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px}
+
+/* FORM */
+.lbl{font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px}
+input,select,textarea{width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1.5px solid var(--border);font-size:12px;font-family:inherit;color:var(--text1);background:var(--surface);outline:none;margin-bottom:9px;transition:border .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,46,75,.08)}
+textarea{resize:vertical;min-height:64px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* BUTTONS */
+.btn-p{width:100%;padding:10px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;background:var(--navy);color:#fff;transition:opacity .15s}
+.btn-p:hover{opacity:.85}
+.btn-o{padding:7px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border2);cursor:pointer;font-size:11px;font-family:inherit;background:var(--surface);color:var(--text2);font-weight:600;transition:all .15s}
+.btn-o:hover{background:var(--surface2);border-color:var(--navy);color:var(--navy)}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-red:hover{opacity:.85}
+
+/* TYPE & GRADE */
+.type-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:11px}
+.t-btn{padding:9px;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;background:var(--surface2);color:var(--text2);text-align:center;transition:all .15s}
+.gr-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:9px}
+.g-btn{padding:7px 0;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;font-size:11px;font-weight:700;font-family:inherit;background:var(--surface2);color:var(--text2);text-align:center;transition:all .15s}
+.pill{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;white-space:nowrap;display:inline-block;width:fit-content;line-height:1.2;height:fit-content;align-self:center}
+.pe{background:#FEF9C3;color:#92400E}
+.pm{background:#EDE9FE;color:#5B21B6}
+.ph{background:#E0E7FF;color:#3730A3}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sg4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.st{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.st::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.st-n::after{background:var(--navy)}.st-r::after{background:var(--red)}.st-g::after{background:var(--green)}.st-gold::after{background:var(--gold)}
+.sl{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.sv{font-size:20px;font-weight:700;letter-spacing:-.5px}
+
+/* LIST */
+.li{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid var(--border);margin-bottom:4px;min-height:unset}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--border2);font-size:17px;line-height:1;margin-left:auto}
+.del-btn:hover{color:var(--red)}
+
+/* BAR CHART */
+.bc{display:flex;align-items:flex-end;gap:3px}
+.bg{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bi{width:100%;display:flex;gap:1px;align-items:flex-end}
+.b{border-radius:2px 2px 0 0;flex:1;transition:height .3s}
+.bl{font-size:8px;color:var(--text3);font-weight:500}
+.bl.hi{color:var(--navy);font-weight:700}
+.legend{display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2)}
+.ld{width:8px;height:8px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:3px}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-body{overflow:auto;padding:16px 20px}
+
+/* OV TABLE (전체보기) */
+.ov-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.ov-table th{background:var(--navy);color:#fff;padding:7px 6px;text-align:center;border:1px solid var(--navy2);font-size:10px;font-weight:700;white-space:nowrap}
+.ov-table th:first-child{text-align:left;width:70px}
+.ov-table td{padding:4px 5px;border:1px solid var(--border);text-align:center;vertical-align:top;font-size:10px}
+.ov-table td:first-child{text-align:left;font-weight:600;background:var(--surface2)}
+.ov-table tr.total-row td{background:#F0F4FF;font-weight:700;color:var(--navy);border-top:2px solid var(--navy)}
+
+/* 신입생 뷰 테이블 */
+.stu-table{width:100%;border-collapse:collapse;font-size:12px}
+.stu-table th{background:var(--navy);color:#fff;padding:8px 12px;text-align:left;font-weight:700;font-size:11px}
+.stu-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.stu-table tr:last-child td{border-bottom:none}
+.stu-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.stu-cell{font-size:11px;padding:4px 6px;background:var(--surface2);border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnt-box{font-size:11px;line-height:1.8;white-space:nowrap}
+
+/* 회계 테이블 */
+.acct-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+.acct-table{width:100%;border-collapse:collapse;font-size:11px;min-width:980px}
+.acct-table th{background:var(--navy);color:#fff;padding:8px 10px;text-align:center;font-weight:700;border:1px solid var(--navy2);white-space:nowrap;font-size:11px}
+.acct-table th:first-child{text-align:left;min-width:165px}
+.acct-table td{padding:6px 10px;border:1px solid var(--border);text-align:right;font-size:11px}
+.acct-table td:first-child{text-align:left;background:#FAFBFD;font-weight:500}
+.acct-table tr.sec-hdr td{font-weight:700;border:1px solid #C5CEDC}
+.acct-table tr.sub-total td{font-weight:700;border:1px solid #9BADC5}
+.acct-table tr.sub-total td:first-child{background:inherit}
+.acct-table tr.grand-total td{font-weight:900;color:#fff;border:1px solid #7A99C0}
+.acct-table tr.real-total td{font-weight:700;border:1px solid #A5B9D0}
+.acct-table tr.rev-row td{background:#EEF8F1;color:#065F46;font-weight:700}
+.acct-table tr.rev-row td:first-child{background:#EEF8F1}
+.acct-table tr.profit-row td{font-weight:900;color:#fff}
+.money-input{width:100%;border:none;background:transparent;text-align:right;font-size:11px;font-family:inherit;color:#065F46;font-weight:700;outline:none;padding:0}
+.money-input.exp-input{color:#374151;font-weight:500}
+.money-input::placeholder{color:#B0CBB8}
+
+/* 보수 테이블 */
+.sal-table{width:100%;border-collapse:collapse;font-size:12px}
+.sal-table th{background:var(--navy);color:#fff;padding:8px 10px;font-size:11px;font-weight:700}
+.sal-table th:first-child{text-align:left;border-radius:8px 0 0 8px}
+.sal-table th:last-child{border-radius:0 8px 8px 0}
+.sal-table th{text-align:right}
+.sal-table td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:right}
+.sal-table td:first-child{text-align:left;font-weight:600}
+.sal-table tr:hover td{background:var(--surface2);cursor:pointer}
+.sal-table tr:last-child td{border:none}
+
+/* NOTE CARDS */
+.ng{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.nc{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:14px;position:relative;border-top:3px solid var(--navy);box-shadow:var(--shadow);transition:transform .15s}
+.nc:hover{transform:translateY(-2px)}
+
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cdh{text-align:center;font-size:10px;color:var(--text3);padding:4px 0;font-weight:600}
+.cc{min-height:56px;padding:3px;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:background .1s}
+.cc:hover{background:var(--surface2)}
+.cc.tod{background:#EEF3FF;border-color:#93C5FD}
+.cc.sel{background:var(--navy);border-color:var(--navy)}
+.cc.sel .cdn{color:#fff}
+.cdn{font-size:11px;text-align:right;margin-bottom:2px}
+.cc.tod .cdn{color:#1D4ED8;font-weight:700}
+.cev{font-size:9px;border-radius:3px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;margin-top:1px}
+
+/* iframe */
+.iframe-wrap{width:100%;height:calc(100vh - 180px);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
+.iframe-wrap iframe{width:100%;height:100%;border:none}
+
+/* placeholder */
+.panel-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:10px;color:var(--text3);text-align:center}
+
+/* upload zone */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:var(--surface2)}
+.upload-zone:hover{border-color:var(--navy);background:#EEF3FF}
+.upload-zone input{display:none}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">최</div>
+    <div class="login-title">최선생수학학원</div>
+    <div class="login-sub">원장 관리 대시보드</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn" onclick="pinPress('')" style="visibility:hidden"></button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-err" id="pinErr"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr" id="mainHdr" style="display:none">
+  <div class="hdr-logo">최</div>
+  <div>
+    <div class="hdr-name">최선생수학학원</div>
+    <div class="hdr-sub">원장 관리 대시보드</div>
+  </div>
+  <div class="hdr-right">
+    <select class="yr-sel" id="yrSel" onchange="setYr()">
+      <option value="2025">2025년</option>
+      <option value="2026" selected>2026년</option>
+      <option value="2027">2027년</option>
+    </select>
+    <div class="fb-dot" id="fbDot"></div>
+    <span class="fb-label" id="fbLbl">연결 중</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs" id="mainTabs" style="display:none">
+  <button class="tab on" onclick="go('t1',this)">👥 신입·퇴원</button>
+  <button class="tab" onclick="go('t2',this)">💰 매출·순이익</button>
+  <button class="tab" onclick="go('t3',this)">💳 강사 보수</button>
+  <button class="tab" onclick="go('t4',this)">📝 메모장</button>
+  <button class="tab" onclick="go('t5',this)">📅 캘린더</button>
+  <button class="tab" onclick="go('t6',this)">📊 성적관리</button>
+  <button class="tab" onclick="go('t7',this)">🔐 핀 관리</button>
+</nav>
+
+<!-- MODAL: 전체보기 -->
+<div class="modal-bg" id="ovModal">
+  <div class="modal" style="max-width:1100px">
+    <div class="modal-hdr">
+      <span style="font-size:14px;font-weight:700;color:var(--navy)" id="ovModalTitle">전체 현황</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-o" id="ovTabEnter" onclick="switchOv('enter')">신입생 뷰</button>
+        <button class="btn-o" id="ovTabQuit" onclick="switchOv('quit')">퇴원생 뷰</button>
+        <button class="btn-o" id="ovTabAll" onclick="switchOv('all')">통합 전체보기</button>
+        <button class="btn-o" onclick="closeOv()">닫기</button>
+      </div>
+    </div>
+    <div class="modal-body" id="ovBody"></div>
+  </div>
+</div>
+
+<main class="content" id="mainContent" style="display:none">
+
+<!-- ══ T1 신입·퇴원 ══ -->
+<div class="panel on" id="t1">
+  <div class="row">
+    <div class="col-form">
+      <div class="card">
+        <div class="card-title">신입·퇴원 등록</div>
+        <div class="type-row">
+          <button class="t-btn" id="tE" onclick="setTp('enter')" style="background:var(--navy);color:#fff;border-color:var(--navy)">✚ 신입</button>
+          <button class="t-btn" id="tQ" onclick="setTp('quit')">✕ 퇴원</button>
+        </div>
+        <label class="lbl">이름</label><input id="sn" placeholder="학생 이름">
+        <label class="lbl">학교급</label>
+        <div class="gr-row">
+          <button class="g-btn" id="gE" onclick="setGrp('elem')" style="background:#FEF9C3;color:#92400E;border-color:#EAB308">초등</button>
+          <button class="g-btn" id="gM" onclick="setGrp('mid')">중등</button>
+          <button class="g-btn" id="gH" onclick="setGrp('high')">고등</button>
+        </div>
+        <label class="lbl">학년</label><select id="sGr"></select>
+        <label class="lbl">담당강사</label><select id="sT"></select>
+        <label class="lbl">날짜</label><input type="date" id="sDt">
+        <div id="qEx" style="display:none">
+          <label class="lbl">퇴원 사유</label>
+          <select id="sQr"><option value="">선택</option><option>이사</option><option>학업중단</option><option>타학원이동</option><option>성적불만</option><option>비용문제</option><option>졸업</option><option>기타</option></select>
+          <label class="lbl">비고</label>
+          <textarea id="sQn" placeholder="추가 메모" style="height:56px"></textarea>
+        </div>
+        <button class="btn-p" onclick="addStu()">등록</button>
+      </div>
+    </div>
+    <div class="col-main">
+      <!-- 필터 + 전체보기 -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+        <select id="t1m" onchange="rT1()" style="width:80px;margin:0"></select>
+        <select id="t1tc" onchange="rT1()" style="width:108px;margin:0"><option>전체</option></select>
+        <button class="btn-o" onclick="openOv('all')">전체보기 →</button>
+        <button class="btn-o" onclick="openOv('enter')" style="color:var(--navy)">📋 신입생 현황</button>
+        <button class="btn-o" onclick="openOv('quit')" style="color:var(--red)">📋 퇴원생 현황</button>
+        <div style="margin-left:auto;display:flex;gap:12px;font-size:12px;font-weight:700">
+          <span style="color:var(--navy)">신입 <span id="eCnt">0</span>명</span>
+          <span style="color:var(--red)">퇴원 <span id="qCnt">0</span>명</span>
+          <span id="netS" style="color:var(--green)">순증 +0명</span>
+        </div>
+      </div>
+      <!-- 신입/퇴원 카드 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="card" style="padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <span style="width:8px;height:8px;background:var(--navy);border-radius:50%;display:inline-block"></span>
+            신입 <span id="eBig" style="font-size:22px;font-weight:900;color:var(--navy);margin-left:4px">0</span>명
+          </div>
+          <div id="eList" style="max-height:210px;overflow-y:auto"></div>
+        </div>
+        <div class="card" style="padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <span style="width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block"></span>
+            퇴원 <span id="qBig" style="font-size:22px;font-weight:900;color:var(--red);margin-left:4px">0</span>명
+          </div>
+          <div id="qList" style="max-height:210px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <!-- 월별 차트 -->
+      <div class="card">
+        <div class="card-title">월별 신입·퇴원 현황</div>
+        <div class="bc" id="t1ch" style="height:95px"></div>
+        <div class="legend">
+          <span><span class="ld" style="background:var(--navy)"></span>신입</span>
+          <span><span class="ld" style="background:var(--red)"></span>퇴원</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ T2 매출·순이익 ══ -->
+<div class="panel" id="t2">
+  <!-- 요약 카드 -->
+  <div class="sg4">
+    <div class="st st-g"><div class="sl">연간 총 매출</div><div class="sv" id="s2Rev" style="color:var(--green)">—</div></div>
+    <div class="st st-r"><div class="sl">연간 총 지출</div><div class="sv" id="s2Exp" style="color:var(--red)">—</div></div>
+    <div class="st st-n"><div class="sl">연간 순이익</div><div class="sv" id="s2Pro" style="color:var(--navy)">—</div></div>
+    <div class="st st-gold"><div class="sl">순이익률</div><div class="sv" id="s2Rate" style="color:var(--gold)">—</div></div>
+  </div>
+
+  <!-- 💵 수강료 매출 입력 카드 (별도 강조) -->
+  <div class="card" style="border:2px solid #6EAA95;background:linear-gradient(135deg,#F4F7F6,#EDF2F0)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:800;color:#065F46">💵 월별 수강료 매출 입력</div>
+      <div style="font-size:11px;color:#2D7A62;background:#D6EDEA;padding:4px 10px;border-radius:20px;font-weight:600">입력 후 자동 계산</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:8px" id="revInputGrid"></div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px" id="revInputGrid2"></div>
+    <div style="margin-top:12px;padding:10px 12px;background:#D6EDEA;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:700;color:#1A5C4A">연간 총 매출</span>
+      <span style="font-size:16px;font-weight:900;color:#1A5C4A" id="revGrandTotal">—</span>
+    </div>
+  </div>
+
+  <!-- 지출 업로드 -->
+  <div class="card">
+    <div class="card-title">📤 지출자료 업로드</div>
+    <div class="upload-zone" onclick="document.getElementById('expFile').click()">
+      <input type="file" id="expFile" accept=".csv,.xlsx,.xls" onchange="handleExpFile(this)">
+      <div style="font-size:24px;margin-bottom:8px">📂</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text2)">엑셀 / CSV 파일을 클릭하여 업로드</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">은행 거래내역 파일 지원</div>
+    </div>
+    <div id="uploadStatus" style="font-size:11px;color:var(--green);margin-top:8px;text-align:center"></div>
+  </div>
+  <!-- 엑셀 파싱 결과 -->
+  <div class="card" id="expParseCard" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-title" style="margin:0">📋 업로드된 지출내역</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="expParseStat" style="font-size:11px;color:var(--text3)"></span>
+        <button onclick="clearExpParse()" style="font-size:11px;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--text3)">✕ 닫기</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;max-height:340px;overflow-y:auto">
+      <table class="acct-table" id="expParseTable" style="min-width:500px"></table>
+    </div>
+  </div>
+  <!-- 회계 테이블 -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="card-title" style="margin:0">월별 매출 · 지출 · 순이익 상세</div>
+      <div style="font-size:11px;color:var(--text3)">💡 지출 칸 직접 수정 가능</div>
+    </div>
+    <div class="acct-wrap"><table class="acct-table"><thead id="acctHead"></thead><tbody id="acctBody"></tbody></table></div>
+  </div>
+  <!-- 차트 -->
+  <div class="card">
+    <div class="card-title">연간 추이</div>
+    <div class="bc" id="t2ch" style="height:120px"></div>
+    <div class="legend">
+      <span><span class="ld" style="background:var(--navy)"></span>매출</span>
+      <span><span class="ld" style="background:var(--red)"></span>지출</span>
+      <span><span class="ld" style="background:var(--green)"></span>순이익</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ T3 강사 보수 ══ -->
+<div class="panel" id="t3">
+  <div class="row">
+    <div class="col-form">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="card-title" style="margin:0">보수 입력</div>
+          <select id="t3m" onchange="rT3()" style="width:80px;margin:0"></select>
+        </div>
+        <label class="lbl">강사</label><select id="salT" onchange="loadSal()"></select>
+        <label class="lbl">기본급 (원)</label><input type="number" id="sBase" placeholder="0" oninput="upSP()">
+        <div id="salPre" style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;font-size:12px;font-weight:600;color:#065F46">
+          용역비 공제: 0원 &nbsp;|&nbsp; 실지급: 0원
+        </div>
+        <button class="btn-p" onclick="saveSal()">저장</button>
+      </div>
+    </div>
+    <div class="col-main" style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin:0">강사 보수</div>
+          <span style="font-size:12px;font-weight:700;color:var(--navy)">합계: <span id="t3tot">0원</span></span>
+        </div>
+        <table class="sal-table">
+          <thead><tr>
+            <th style="text-align:left">강사</th>
+            <th>기본급</th>
+            <th>용역비 공제 (3.3%)</th>
+            <th>실지급</th>
+          </tr></thead>
+          <tbody id="t3tb"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-title" style="margin:0">월별 총 보수</div>
+          <div style="font-size:11px;color:var(--text3)">세전 합계: <span id="t3totPre" style="font-weight:700;color:#B45309">0원</span> &nbsp;|&nbsp; 연간: <span id="t3totYr" style="font-weight:700;color:var(--navy)">0원</span></div>
+        </div>
+        <div class="bc" id="t3ch" style="height:95px"></div>
+      </div>
+      <!-- 강사별 연간 현황 -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title" style="margin:0">강사별 연간 보수</div>
+          <select id="t3TcSel" onchange="rT3Tc()" style="width:90px;margin:0"></select>
+        </div>
+        <table class="sal-table" id="t3TcTb">
+          <thead><tr><th>월</th><th>기본급</th><th>용역비(3.3%)</th><th>실지급</th></tr></thead>
+          <tbody id="t3TcBody"></tbody>
+        </table>
+        <div class="bc" id="t3TcCh" style="height:90px;margin-top:12px"></div>
+        <div style="margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:6px;display:flex;justify-content:space-between;font-size:11px">
+          <span style="color:var(--text2)">연간 합계</span>
+          <span style="font-weight:800;color:var(--navy)" id="t3TcYrTot">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ T4 메모장 ══ -->
+<div class="panel" id="t4">
+  <div class="iframe-wrap">
+    <iframe src="https://chic-kulfi-0275a1.netlify.app" title="최선생 메모장"></iframe>
+  </div>
+</div>
+
+<!-- ══ T5 캘린더 ══ -->
+<div class="panel" id="t5">
+  <div class="iframe-wrap">
+    <iframe src="https://celadon-syrniki-010841.netlify.app" title="최선생 캘린더"></iframe>
+  </div>
+</div>
+
+<!-- ══ T6 성적관리 ══ -->
+<div class="panel" id="t6">
+  <div class="iframe-wrap">
+    <iframe id="scoreIframe" src="about:blank" title="최선생 성적관리"></iframe>
+  </div>
+  <div id="scoreHolder" style="display:none;padding:40px;text-align:center">
+    <div style="font-size:52px;margin-bottom:16px">📊</div>
+    <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">성적관리 앱 연결</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:20px">성적관리 앱을 Netlify에 배포한 후 URL을 입력하세요</div>
+    <div style="display:flex;gap:8px;justify-content:center;max-width:480px;margin:0 auto">
+      <input id="scoreUrl" type="url" placeholder="https://your-app.netlify.app" style="flex:1;margin:0">
+      <button class="btn-p" style="width:auto;padding:8px 16px;white-space:nowrap" onclick="connectScore()">연결</button>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text3)">또는 로컬 파일을 사용하려면 아래 버튼을 클릭하세요</div>
+    <button class="btn-o" style="margin-top:8px" onclick="loadScoreLocal()">📁 로컬 파일 열기</button>
+  </div>
+</div>
+
+<!-- ══ T7 핀 관리 ══ -->
+<div class="panel" id="t7">
+  <div style="max-width:420px;margin:40px auto">
+    <div class="card">
+      <div class="card-title" style="font-size:15px">🔐 핀번호 관리</div>
+      <div style="background:#F0F4FF;border:1px solid #C7D7FD;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:12px;color:#3730A3">현재 핀번호: <span id="curPinView" style="font-weight:900;letter-spacing:4px;font-size:16px">****</span>
+        <button onclick="togglePin()" id="pinToggleBtn" style="margin-left:10px;background:none;border:none;cursor:pointer;font-size:11px;color:#6366F1;font-weight:600;text-decoration:underline">보기</button>
+      </div>
+      <label class="lbl">새 핀번호 (4자리 숫자)</label>
+      <input type="password" id="newPin1" maxlength="4" placeholder="새 핀번호 입력" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="letter-spacing:6px;font-size:18px;font-weight:700">
+      <label class="lbl">새 핀번호 확인</label>
+      <input type="password" id="newPin2" maxlength="4" placeholder="한 번 더 입력" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="letter-spacing:6px;font-size:18px;font-weight:700">
+      <div id="pinChgMsg" style="font-size:12px;min-height:18px;margin-bottom:10px;font-weight:600"></div>
+      <button class="btn-p" onclick="changePin()">핀번호 변경</button>
+    </div>
+    <div class="card" style="margin-top:0">
+      <div class="card-title">💡 안내</div>
+      <div style="font-size:12px;color:var(--text2);line-height:2">
+        • 핀번호는 4자리 숫자만 가능합니다<br>
+        • 변경 즉시 적용됩니다<br>
+        • 브라우저 로컬에 저장됩니다<br>
+        • 분실 시 HTML 파일 내 <code style="background:var(--surface2);padding:1px 5px;border-radius:4px">const PIN</code> 값을 확인하세요
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// ── 상수
+let PIN=localStorage.getItem("dash_pin")||"1234"; // localStorage 우선
+const TC=["혜인T","하영T","영훈T","도희T","지영T","정섭T","경민T","정인T","부원장"];
+const MO=["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+const GD={elem:["초1","초2","초3","초4","초5","초6"],mid:["중1","중2","중3"],high:["고1","고2","고3"]};
+const GC={elem:{bg:"#FEF9C3",tc:"#92400E",bc:"#EAB308"},mid:{bg:"#EDE9FE",tc:"#5B21B6",bc:"#7C3AED"},high:{bg:"#E0E7FF",tc:"#3730A3",bc:"#4338CA"}};
+const GN={elem:"초",mid:"중",high:"고"};
+
+// 회계 섹션
+const SECTIONS=[
+  {name:"💰 기업은행 이체 (운영자금)",bg:"#E8EEF7",sbg:"#C5D5EC",gbg:"#1B2E4B",ref:true,
+   items:[{n:"모으는기업 (기업은행)"},{n:"개인기업 (기업은행)"}]},
+  {name:"👨‍🏫 강사 용역비",bg:"#EDF7F0",sbg:"#C2E8CC",gbg:"#1A6B3A",
+   items:[{n:"영훈T"},{n:"경민T"},{n:"정섭T"},{n:"하영T"},{n:"도희T"},{n:"혜인T"},{n:"정인T"},{n:"지영T"}]},
+  {name:"🚌 지입 기사",bg:"#F7F0ED",sbg:"#E8C9BC",gbg:"#7A3520",
+   items:[{n:"이봉희 지입실장"},{n:"조광수 지입실장"},{n:"정섭T 주차비"}]},
+  {name:"🏢 임대 / 관리비",bg:"#F0EDF7",sbg:"#D4C5EC",gbg:"#4B2D8A",
+   items:[{n:"펜타 학원월세"},{n:"502호 관리비"},{n:"503호 관리비"},{n:"504호 관리비"}]},
+  {name:"📋 4대보험 / 공제",bg:"#F7F7ED",sbg:"#E8E5BC",gbg:"#5C5A20",
+   items:[{n:"국민건강보험"},{n:"국민연금"},{n:"노란우산공제"},{n:"농협(건강보험)"}]},
+  {name:"📚 교육 콘텐츠",bg:"#EDF7F7",sbg:"#BCE8E5",gbg:"#1A5F5C",
+   items:[{n:"대교에듀베이션"},{n:"매쓰홀릭"},{n:"sugi기출문제"},{n:"내신코치기출"}]},
+  {name:"🔧 운영 고정비",bg:"#F7EDF7",sbg:"#E5BCE8",gbg:"#5C1A6B",
+   items:[{n:"신도정보 OA"},{n:"피플택스충청"},{n:"올댓페이"},{n:"세스코"},{n:"KT 통신요금"},{n:"SK인텔릭스"}]},
+  {name:"🍱 식사비",bg:"#FFF8ED",sbg:"#F5DFB5",gbg:"#7A4A10",
+   items:[{n:"굿푸드 학원식사"},{n:"학원식사비(한솥)"}]},
+  {name:"🏗️ 비정기 지출",bg:"#F7EDEE",sbg:"#ECBFC2",gbg:"#8A2030",
+   items:[{n:"학원인테리어"},{n:"빔프로젝트공사비"},{n:"학원바닥매트"},{n:"학원로고매트"},{n:"학원등록면허세"},{n:"학원연합회연회비"}]},
+  {name:"🧾 세금",bg:"#EDEFF7",sbg:"#BDC7EC",gbg:"#1A2F8A",
+   items:[{n:"지방세납부"},{n:"국세납부"}]},
+  {name:"🏦 생활비 / 용돈",bg:"#F0F7ED",sbg:"#C5ECB5",gbg:"#2A6B10",
+   items:[{n:"생활비(남도영)"},{n:"공과금(신한→최미선)"},{n:"농협이체(최미선)"}]},
+];
+
+// ── 유틸
+const fmt=n=>Math.round(Number(n)||0).toLocaleString("ko-KR");
+const fmtW=n=>{if(!n)return"—";const a=Math.abs(n);if(a>=100000000)return(n/100000000).toFixed(1)+"억";if(a>=10000)return Math.round(n/10000)+"만";return fmt(n);};
+const td=()=>{const d=new Date();return`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;};
+const p2=n=>String(n).padStart(2,"0");
+const mOf=s=>s?parseInt(s.split("-")[1]):new Date().getMonth()+1;
+const yrOf=s=>s?s.split("-")[0]:"";
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+const $=id=>document.getElementById(id);
+let db=null,curYr="2026",_notes=[],_evs=[];
+
+// ── PIN 로그인
+let pinVal="";
+function pinPress(n){
+  if(pinVal.length>=4)return;
+  pinVal+=n;
+  for(let i=0;i<4;i++)$("d"+i).classList.toggle("filled",i<pinVal.length);
+  if(pinVal.length===4){
+    setTimeout(()=>{
+      if(pinVal===PIN){
+        $("loginWrap").style.display="none";
+        $("mainHdr").style.display="flex";
+        $("mainTabs").style.display="flex";
+        $("mainContent").style.display="block";
+        initApp();
+      } else {
+        $("pinErr").textContent="비밀번호가 맞지 않습니다";
+        pinVal="";
+        for(let i=0;i<4;i++)$("d"+i).classList.remove("filled");
+        setTimeout(()=>$("pinErr").textContent="",2000);
+      }
+    },200);
+  }
+}
+function pinDel(){
+  if(!pinVal.length)return;
+  pinVal=pinVal.slice(0,-1);
+  for(let i=0;i<4;i++)$("d"+i).classList.toggle("filled",i<pinVal.length);
+  $("pinErr").textContent="";
+}
+
+// ── Firebase
+function initFirebase(){
+  try{
+    firebase.initializeApp({apiKey:"AIzaSyBZTTbctipq7SNm-bX08u-svaQl-ya01kM",authDomain:"choi-math-memo.firebaseapp.com",projectId:"choi-math-memo",appId:"1:270950581677:web:1a3e647d6e065983eb0d24"});
+    db=firebase.firestore();
+    $("fbDot").classList.add("ok");$("fbLbl").textContent="Firebase 연결됨";
+  }catch(e){$("fbLbl").textContent="연결 실패";}
+}
+
+// ── 앱 초기화
+function initApp(){
+  initFirebase();
+  const cm=new Date().getMonth()+1;
+  ["t1m","t3m"].forEach(id=>{$(id).innerHTML=MO.map((m,i)=>`<option value="${i+1}"${i+1===cm?" selected":""}>${m}</option>`).join("");});
+  ["sT","salT"].forEach(id=>{$(id).innerHTML=TC.map(t=>`<option>${t}</option>`).join("");});
+  $("t1tc").innerHTML=`<option>전체</option>`+TC.map(t=>`<option>${t}</option>`).join("");
+  $("sDt").value=td();
+  setGrp("elem");
+  rT1();buildAcct();rT3();initScore();initPinMgmt();
+}
+function setYr(){curYr=$("yrSel").value;rT1();buildAcct();rT3();}
+function go(id,btn){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  $(id).classList.add("on");btn.classList.add("on");
+  if(id==="t6"){
+    const saved=localStorage.getItem(SCORE_URL_KEY);
+    const wrap=$("scoreIframe").parentElement;
+    if(saved){wrap.style.display="block";$("scoreHolder").style.display="none";}
+    else{wrap.style.display="none";$("scoreHolder").style.display="block";}
+  }
+}
+
+// ══ T1 신입·퇴원 ══
+let t1Tp="enter",t1Grp="elem";
+function setTp(t){
+  t1Tp=t;
+  if(t==="enter"){
+    $("tE").style.cssText="background:var(--navy);color:#fff;border-color:var(--navy)";
+    $("tQ").style.cssText="background:var(--surface2);color:var(--text2);border-color:var(--border)";
+  } else {
+    $("tQ").style.cssText="background:var(--red);color:#fff;border-color:var(--red)";
+    $("tE").style.cssText="background:var(--surface2);color:var(--text2);border-color:var(--border)";
+  }
+  $("qEx").style.display=t==="quit"?"block":"none";
+}
+function setGrp(g){
+  t1Grp=g;
+  [["gE","elem"],["gM","mid"],["gH","high"]].forEach(([id,k])=>{
+    const b=$(id),on=k===g;
+    b.style.background=on?GC[k].bg:"";b.style.color=on?GC[k].tc:"";b.style.borderColor=on?GC[k].bc:"";
+  });
+  $("sGr").innerHTML=GD[g].map(v=>`<option>${v}</option>`).join("");
+}
+function addStu(){
+  const n=$("sn").value.trim();if(!n){alert("이름을 입력해주세요");return;}
+  if(!$("sDt").value){alert("날짜를 선택해주세요");return;}
+  const l=ld("stu",[]);
+  const qrEl=$("sQr"),qnEl=$("sQn");
+  l.push({id:Date.now(),type:t1Tp,name:n,grp:t1Grp,grade:$("sGr").value,teacher:$("sT").value,date:$("sDt").value,
+    qr:qrEl?qrEl.value:"",qn:qnEl?qnEl.value:""});
+  sv("stu",l);
+  $("sn").value="";
+  if(qrEl)qrEl.value="";
+  if(qnEl)qnEl.value="";
+  rT1();
+}
+function delStu(id){sv("stu",ld("stu",[]).filter(s=>s.id!==id));rT1();}
+function stuOfYr(){return ld("stu",[]).filter(s=>yrOf(s.date)===curYr);}
+function rT1(){
+  const l=stuOfYr(),m=+$("t1m").value,tc=$("t1tc").value;
+  const f=l.filter(s=>mOf(s.date)===m&&(tc==="전체"||s.teacher===tc));
+  const en=f.filter(s=>s.type==="enter"),qu=f.filter(s=>s.type==="quit");
+  $("eCnt").textContent=en.length;$("qCnt").textContent=qu.length;
+  $("eBig").textContent=en.length;$("qBig").textContent=qu.length;
+  const net=en.length-qu.length;
+  $("netS").style.color=net>=0?"var(--green)":"var(--red)";
+  $("netS").textContent=`순증 ${net>=0?"+":""}${net}명`;
+  const rl=(items,elId)=>{$(elId).innerHTML=items.length?items.map(s=>`<div class="li">
+    <span class="pill ${s.grp==="elem"?"pe":s.grp==="mid"?"pm":"ph"}">${s.grade}</span>
+    <span style="font-weight:600;font-size:12px;flex:1">${s.name}</span>
+    <span style="font-size:10px;color:var(--text3)">${s.teacher}</span>
+    ${s.type==="quit"&&s.qr?`<span style="font-size:10px;color:var(--red)">${s.qr}</span>`:""}
+    <button class="del-btn" onclick="delStu(${s.id})">×</button>
+  </div>`).join(""):`<div style="color:var(--text3);font-size:11px;text-align:center;padding:14px">없음</div>`;};
+  rl(en,"eList");rl(qu,"qList");
+  const allL=stuOfYr();
+  const mx=Math.max(...MO.map((_,i)=>{const mi=i+1;return Math.max(allL.filter(s=>s.type==="enter"&&mOf(s.date)===mi).length,allL.filter(s=>s.type==="quit"&&mOf(s.date)===mi).length);}),1);
+  $("t1ch").innerHTML=MO.map((_,i)=>{const mi=i+1,e=allL.filter(s=>s.type==="enter"&&mOf(s.date)===mi).length,q=allL.filter(s=>s.type==="quit"&&mOf(s.date)===mi).length;
+    const eH=e?Math.max(e/mx*70,14):0,qH=q?Math.max(q/mx*70,14):0;
+    const eLbl=e?`<span style="font-size:9px;font-weight:900;color:var(--navy);display:block;text-align:center;margin-bottom:2px">${e}</span>`:"";
+    const qLbl=q?`<span style="font-size:9px;font-weight:900;color:var(--red);display:block;text-align:center;margin-bottom:2px">${q}</span>`:"";
+    const eBar=e?`<div style="width:12px;height:${eH}px;background:var(--navy);border-radius:2px 2px 0 0"></div>`:"";
+    const qBar=q?`<div style="width:12px;height:${qH}px;background:var(--red);border-radius:2px 2px 0 0"></div>`:"";
+    return`<div class="bg">
+      <div style="height:90px;display:flex;align-items:flex-end;gap:3px">
+        ${e?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">${eLbl}${eBar}</div>`:""}
+        ${q?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">${qLbl}${qBar}</div>`:""}
+      </div>
+      <span class="bl ${mi===m?"hi":""}">${mi}</span>
+    </div>`;
+  }).join("");
+}
+
+// ── 전체보기 모달
+let ovMode="all";
+function openOv(mode){ovMode=mode;switchOv(mode);$("ovModal").classList.add("open");}
+function closeOv(){$("ovModal").classList.remove("open");}
+function switchOv(mode){
+  ovMode=mode;
+  ["ovTabEnter","ovTabQuit","ovTabAll"].forEach(id=>$(id).style.fontWeight="");
+  if(mode==="enter"){$("ovModalTitle").textContent=`신입생 현황 — ${curYr}년`;$("ovTabEnter").style.fontWeight="700";buildEnterView();}
+  else if(mode==="quit"){$("ovModalTitle").textContent=`퇴원생 현황 — ${curYr}년`;$("ovTabQuit").style.fontWeight="700";buildQuitView();}
+  else{$("ovModalTitle").textContent=`전체 신입·퇴원 현황 — ${curYr}년`;$("ovTabAll").style.fontWeight="700";buildAllView();}
+}
+
+// 신입생 뷰: 월/학생(6×5)/인원수
+function buildEnterView(){
+  const l=stuOfYr().filter(s=>s.type==="enter");
+  let h=`<table class="stu-table"><thead><tr>
+    <th style="width:60px">월</th><th>학생 (최대 30명)</th><th style="width:120px">인원수</th>
+  </tr></thead><tbody>`;
+  MO.forEach((_,i)=>{
+    const mi=i+1;
+    const kids=l.filter(s=>mOf(s.date)===mi);
+    const elem=kids.filter(s=>s.grp==="elem").length;
+    const mid=kids.filter(s=>s.grp==="mid").length;
+    const high=kids.filter(s=>s.grp==="high").length;
+    // 6열×5행 그리드
+    const cells=Array(30).fill("").map((_,ci)=>{
+      const k=kids[ci];
+      return k?`<div class="stu-cell"><span class="pill ${k.grp==="elem"?"pe":k.grp==="mid"?"pm":"ph"}" style="font-size:9px;padding:1px 4px;border-radius:4px">${k.grade}</span> ${k.name}</div>`:`<div style="height:26px"></div>`;
+    });
+    const grid=`<div class="stu-grid">${cells.join("")}</div>`;
+    const cnt=`<div class="cnt-box">${elem?`초등 ${elem}명<br>`:""}${mid?`중등 ${mid}명<br>`:""}${high?`고등 ${high}명`:""}</div>`;
+    h+=`<tr><td style="font-weight:700;color:var(--navy);white-space:nowrap">${mi}월</td><td>${kids.length?grid:`<span style="color:var(--text3);font-size:11px">없음</span>`}</td><td>${kids.length?cnt:"—"}</td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  $("ovBody").innerHTML=h;
+}
+
+// 퇴원생 뷰: 강사×월별
+function buildQuitView(){
+  const l=stuOfYr().filter(s=>s.type==="quit");
+  let h=`<div style="overflow-x:auto"><table class="ov-table">
+    <thead><tr><th>강사</th>${MO.map(m=>`<th>${m}</th>`).join("")}<th>합계</th></tr></thead><tbody>`;
+  TC.forEach(t=>{
+    const rowTotal=l.filter(s=>s.teacher===t).length;
+    h+=`<tr><td>${t}</td>`;
+    MO.forEach((_,i)=>{const mi=i+1;const kids=l.filter(s=>s.teacher===t&&mOf(s.date)===mi);
+      h+=`<td style="text-align:left;padding:4px 5px">${kids.length?kids.map(k=>`<div style="font-size:10px;color:var(--red);line-height:1.6">${k.name}<span style="color:var(--text3);font-size:9px;margin-left:2px">${k.grade}</span>${k.qr?`<span style="color:var(--text3);font-size:9px"> ·${k.qr}</span>`:""}</div>`).join(""):`<span style="color:#E5E7EB">—</span>`}</td>`;
+    });
+    h+=`<td style="font-weight:700;color:var(--red)">${rowTotal||"—"}</td></tr>`;
+  });
+  // 월별 합계 행
+  h+=`<tr class="total-row"><td>합계</td>`;
+  MO.forEach((_,i)=>{const mi=i+1;const cnt=l.filter(s=>mOf(s.date)===mi).length;h+=`<td>${cnt||"—"}</td>`;});
+  h+=`<td>${l.length||"—"}</td></tr></tbody></table></div>`;
+  $("ovBody").innerHTML=h;
+}
+
+// 통합 전체보기
+function buildAllView(){
+  const l=stuOfYr();
+  let h=`<div style="overflow-x:auto"><table class="ov-table">
+    <thead><tr><th>강사</th>${MO.map(m=>`<th colspan="2">${m}</th>`).join("")}</tr>
+    <tr><th></th>${MO.map(()=>`<th style="color:#93C5FD">신입</th><th style="color:#FCA5A5">퇴원</th>`).join("")}</tr></thead><tbody>`;
+  TC.forEach(t=>{
+    h+=`<tr><td>${t}</td>`;
+    MO.forEach((_,i)=>{const mi=i+1;
+      const en=l.filter(s=>s.teacher===t&&s.type==="enter"&&mOf(s.date)===mi);
+      const qu=l.filter(s=>s.teacher===t&&s.type==="quit"&&mOf(s.date)===mi);
+      h+=`<td style="text-align:left">${en.map(k=>`<div style="font-size:10px;color:var(--navy)">${k.name}<span style="font-size:9px;color:var(--text3);margin-left:2px">${k.grade}</span></div>`).join("")||"<span style='color:#E5E7EB'>—</span>"}</td>`;
+      h+=`<td style="text-align:left">${qu.map(k=>`<div style="font-size:10px;color:var(--red)">${k.name}<span style="font-size:9px;color:var(--text3);margin-left:2px">${k.grade}</span></div>`).join("")||"<span style='color:#E5E7EB'>—</span>"}</td>`;
+    });h+=`</tr>`;
+  });
+  h+=`<tr class="total-row"><td>합계</td>`;
+  MO.forEach((_,i)=>{const mi=i+1,e=l.filter(s=>s.type==="enter"&&mOf(s.date)===mi).length,q=l.filter(s=>s.type==="quit"&&mOf(s.date)===mi).length;
+    h+=`<td style="color:var(--navy)">${e||"—"}</td><td style="color:var(--red)">${q||"—"}</td>`;});
+  h+=`</tr></tbody></table></div>`;
+  $("ovBody").innerHTML=h;
+}
+
+// ══ T2 회계 ══
+function getAD(){return ld("acct_"+curYr,{});}
+function setAD(d){sv("acct_"+curYr,d);}
+function buildRevGrid(){
+  const data=getAD();
+  const revs=data.rev||Array(12).fill(0);
+  const revTotal=revs.reduce((a,b)=>a+(b||0),0);
+  if($("revGrandTotal"))$("revGrandTotal").textContent=revTotal?fmt(revTotal)+"원":"—";
+  // input 이미 있으면 값만 업데이트 (포커스/커서 유지)
+  [0,1,2,3,4,5].forEach(i=>{
+    const el=document.querySelector(`[data-rev="${i}"]`);
+    if(el&&document.activeElement!==el)el.value=revs[i]?revs[i].toLocaleString("ko-KR"):"";
+  });
+  [6,7,8,9,10,11].forEach(i=>{
+    const el=document.querySelector(`[data-rev="${i}"]`);
+    if(el&&document.activeElement!==el)el.value=revs[i]?revs[i].toLocaleString("ko-KR"):"";
+  });
+  // 첫 렌더링 시 생성
+  if(!document.querySelector('[data-rev="0"]')){
+    const mkCell=(i)=>`<div style="display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:10px;font-weight:700;color:#2D7A62">${MO[i]}</span>
+      <input class="money-input" data-rev="${i}" style="border-color:#A7F3D0;background:#fff;font-weight:700" value="${revs[i]?revs[i].toLocaleString("ko-KR"):""}" placeholder="0" oninput="onRevG(${i},this)">
+    </div>`;
+    if($("revInputGrid"))$("revInputGrid").innerHTML=Array.from({length:6},(_,i)=>mkCell(i)).join("");
+    if($("revInputGrid2"))$("revInputGrid2").innerHTML=Array.from({length:6},(_,i)=>mkCell(i+6)).join("");
+  }
+}
+function onRevG(mi,el){
+  const raw=el.value.replace(/[^0-9]/g,"");
+  const num=parseInt(raw)||0;
+  const formatted=num?num.toLocaleString("ko-KR"):"";
+  el.value=formatted;
+  const d=getAD();if(!d.rev)d.rev=Array(12).fill(0);d.rev[mi]=num;setAD(d);
+  // buildAcct/buildRevGrid 호출 시 input 재생성으로 포커스 잃는 문제 방지
+  const data2=getAD();
+  const revs2=data2.rev||Array(12).fill(0);
+  const revTotal2=revs2.reduce((a,b)=>a+(b||0),0);
+  if($("revGrandTotal"))$("revGrandTotal").textContent=revTotal2?fmt(revTotal2)+"원":"—";
+  buildAcct();
+}
+
+function buildAcct(){
+  const data=getAD();
+  buildRevGrid();
+  $("acctHead").innerHTML=`<tr><th>구분</th>${MO.map(m=>`<th>${m}</th>`).join("")}<th>합계</th></tr>`;
+  let body="";
+  const revs=data.rev||Array(12).fill(0);
+  const revTotal=revs.reduce((a,b)=>a+(b||0),0);
+  body+=`<tr class="rev-row"><td>💵 수강료 매출</td>`;
+  MO.forEach((_,i)=>{body+=`<td><input class="money-input" value="${revs[i]?fmt(revs[i]):""}" placeholder="0" oninput="onRev(${i},this)"></td>`;});
+  body+=`<td style="color:var(--green);font-weight:700;background:#EEF8F1">${revTotal?fmt(revTotal):"—"}</td></tr>`;
+
+  let allSub=Array(12).fill(0),refSub=Array(12).fill(0);
+  SECTIONS.forEach((sec,si)=>{
+    const isRef=!!sec.ref;
+    body+=`<tr class="sec-hdr" style="background:${sec.bg}"><td colspan="${MO.length+2}" style="color:#122C59;padding-left:12px">${sec.name}${isRef?' <span style="font-size:10px;color:#888;font-weight:400">(내부이체 — 실지출 제외)</span>':""}</td></tr>`;
+    let secT=Array(12).fill(0);
+    sec.items.forEach((item,ii)=>{
+      const key=`s${si}_i${ii}`;const vals=data[key]||Array(12).fill(0);
+      const rowT=vals.reduce((a,b)=>a+(b||0),0);
+      body+=`<tr><td style="padding-left:22px;color:var(--text2)">${item.n}</td>`;
+      MO.forEach((_,mi)=>{secT[mi]+=vals[mi]||0;body+=`<td><input class="money-input exp-input" value="${vals[mi]?fmt(vals[mi]):""}" placeholder="0" oninput="onExp('${key}',${mi},this)"></td>`;});
+      body+=`<td style="color:var(--text2);font-weight:600">${rowT?fmt(rowT):"—"}</td></tr>`;
+    });
+    body+=`<tr class="sub-total" style="background:${sec.sbg}"><td style="color:#122C59">소 계</td>`;
+    secT.forEach((v,mi)=>{
+      if(isRef)refSub[mi]+=v; else allSub[mi]+=v;
+      body+=`<td style="color:#122C59">${v?fmt(v):"—"}</td>`;
+    });
+    const secSum=secT.reduce((a,b)=>a+b,0);
+    body+=`<td style="background:${sec.gbg};color:#fff;font-weight:700">${secSum?fmt(secSum):"—"}</td></tr>`;
+  });
+
+  const expTotal=allSub.reduce((a,b)=>a+b,0);
+  const refTotal=refSub.reduce((a,b)=>a+b,0);
+  const realExp=expTotal; // 내부이체 이미 제외됨
+
+  body+=`<tr class="grand-total" style="background:var(--red)"><td>📤 실지출 합계</td>`;
+  allSub.forEach(v=>{body+=`<td>${v?fmt(v):"—"}</td>`;});
+  body+=`<td style="background:#8B0000">${expTotal?fmt(expTotal):"—"}</td></tr>`;
+
+  if(refTotal){
+    body+=`<tr class="real-total" style="background:#EEF3FF"><td style="color:var(--navy)">📌 내부이체 참고</td>`;
+    refSub.forEach(v=>{body+=`<td style="color:#7FA3D1">${v?fmt(v):"—"}</td>`;});
+    body+=`<td style="color:var(--navy);font-weight:700">${fmt(refTotal)}</td></tr>`;
+  }
+
+  let profTotal=0;
+  body+=`<tr class="profit-row" style="background:var(--navy)"><td>📈 순이익</td>`;
+  MO.forEach((_,i)=>{const p=(revs[i]||0)-allSub[i];profTotal+=p;body+=`<td style="color:${p>=0?"#6EE7B7":"#FCA5A5"}">${(revs[i]||allSub[i])?fmt(p):"—"}</td>`;});
+  body+=`<td style="background:#0D1B2E;color:${profTotal>=0?"#6EE7B7":"#FCA5A5"};font-weight:900">${profTotal?fmt(profTotal):"—"}</td></tr>`;
+  $("acctBody").innerHTML=body;
+
+  $("s2Rev").textContent=revTotal?fmtW(revTotal)+"원":"—";
+  $("s2Exp").textContent=expTotal?fmtW(expTotal)+"원":"—";
+  const pro=revTotal-expTotal;
+  $("s2Pro").textContent=(revTotal||expTotal)?fmtW(pro)+"원":"—";
+  $("s2Pro").style.color=pro>=0?"var(--navy)":"var(--red)";
+  $("s2Rate").textContent=revTotal?Math.round(pro/revTotal*100)+"%":"—";
+
+  const mx=Math.max(...MO.map((_,i)=>Math.max(revs[i]||0,allSub[i])),1);
+  $("t2ch").innerHTML=MO.map((_,i)=>{const r=revs[i]||0,e=allSub[i],p=r-e;
+    return`<div class="bg"><div class="bi" style="height:100px">
+      <div class="b" style="background:var(--navy);height:${r?Math.max(r/mx*98,3):0}px"></div>
+      <div class="b" style="background:var(--red);height:${e?Math.max(e/mx*98,3):0}px"></div>
+      <div class="b" style="background:${p>=0?"var(--green)":"#FCA5A5"};height:${(r||e)?Math.max(Math.abs(p)/mx*98,3):0}px"></div>
+    </div><span class="bl">${i+1}</span></div>`;
+  }).join("");
+}
+function onRev(mi,el){
+  const pos=el.selectionStart,oldLen=el.value.length;
+  const raw=el.value.replace(/[^0-9]/g,"");
+  const num=parseInt(raw)||0;
+  el.value=num?num.toLocaleString("ko-KR"):"";
+  const newLen=el.value.length;
+  el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));
+  const d=getAD();if(!d.rev)d.rev=Array(12).fill(0);d.rev[mi]=num;setAD(d);buildAcct();
+}
+function onExp(key,mi,el){
+  const pos=el.selectionStart,oldLen=el.value.length;
+  const raw=el.value.replace(/[^0-9]/g,"");
+  const num=parseInt(raw)||0;
+  el.value=num?num.toLocaleString("ko-KR"):"";
+  const newLen=el.value.length;
+  el.selectionStart=el.selectionEnd=Math.max(0,pos+(newLen-oldLen));
+  const d=getAD();if(!d[key])d[key]=Array(12).fill(0);d[key][mi]=num;setAD(d);buildAcct();
+}
+
+// 엑셀/CSV 업로드 → 동적 테이블 파싱
+function handleExpFile(input){
+  const file=input.files[0];if(!file)return;
+  const status=$("uploadStatus");
+  status.textContent="파일 읽는 중...";status.style.color="var(--text3)";
+  const reader=new FileReader();
+  const isCSV=file.name.toLowerCase().endsWith(".csv");
+  reader.onload=ev=>{
+    try{
+      let rows=[];
+      if(isCSV){
+        const text=ev.target.result;
+        rows=text.split(/\r?\n/).map(l=>l.split(/,|\t/).map(c=>c.replace(/^"|"$/g,"").trim())).filter(r=>r.some(c=>c));
+      } else {
+        const wb=XLSX.read(new Uint8Array(ev.target.result),{type:"array"});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+      }
+      // 빈 행 제거
+      rows=rows.filter(r=>r.some(c=>String(c).trim()));
+      if(!rows.length){status.textContent="데이터가 없습니다.";status.style.color="var(--red)";return;}
+      // 헤더 행과 데이터 행 분리
+      const header=rows[0];
+      const dataRows=rows.slice(1);
+      // 숫자 포맷: 천단위 쉼표
+      const fmtCell=v=>{
+        if(v===null||v===undefined||v==="")return"—";
+        const n=Number(String(v).replace(/[^0-9.-]/g,""));
+        if(!isNaN(n)&&n!==0&&String(v).match(/[0-9]/))return n.toLocaleString("ko-KR");
+        return String(v);
+      };
+      // 테이블 생성
+      let th=`<thead><tr>${header.map(h=>`<th style="background:#1B2E4B;color:#fff;font-size:11px;padding:6px 10px;white-space:nowrap">${h||""}</th>`).join("")}</tr></thead>`;
+      let tb=`<tbody>${dataRows.map((r,ri)=>`<tr style="background:${ri%2?"var(--surface2)":"#fff"}">${header.map((_,ci)=>`<td style="font-size:11px;padding:5px 10px;white-space:nowrap;text-align:${String(r[ci]).match(/^[0-9,.-]+$/)?"right":"left"}">${fmtCell(r[ci])}</td>`).join("")}</tr>`).join("")}</tbody>`;
+      $("expParseTable").innerHTML=th+tb;
+      $("expParseStat").textContent=`${dataRows.length}행 × ${header.length}열`;
+      $("expParseCard").style.display="block";
+      status.textContent=`✓ ${file.name} 업로드 완료`;
+      status.style.color="var(--green)";
+    }catch(e){
+      console.error(e);
+      status.textContent="파일 읽기 실패: "+e.message;
+      status.style.color="var(--red)";
+    }
+  };
+  if(isCSV)reader.readAsText(file,"UTF-8");
+  else reader.readAsArrayBuffer(file);
+  input.value="";
+}
+function clearExpParse(){$("expParseCard").style.display="none";$("expParseTable").innerHTML="";$("uploadStatus").textContent="";}
+
+// ══ T6 성적관리 연결 ══
+const SCORE_URL_KEY="score_app_url";
+function initScore(){
+  const saved=localStorage.getItem(SCORE_URL_KEY);
+  if(saved){
+    $("scoreIframe").src=saved;
+    $("scoreHolder").style.display="none";
+    $("scoreIframe").parentElement.style.display="block";
+  } else {
+    $("scoreIframe").parentElement.style.display="none";
+    $("scoreHolder").style.display="block";
+  }
+}
+function connectScore(){
+  const url=($("scoreUrl").value||"").trim();
+  if(!url||!url.startsWith("http")){alert("올바른 URL을 입력해주세요 (http:// 또는 https://)");return;}
+  localStorage.setItem(SCORE_URL_KEY,url);
+  $("scoreIframe").src=url;
+  $("scoreHolder").style.display="none";
+  $("scoreIframe").parentElement.style.display="block";
+}
+function loadScoreLocal(){
+  const inp=document.createElement("input");inp.type="file";inp.accept=".html";
+  inp.onchange=()=>{if(inp.files[0])$("scoreIframe").src=URL.createObjectURL(inp.files[0]);$("scoreHolder").style.display="none";$("scoreIframe").parentElement.style.display="block";};
+  inp.click();
+}
+
+// ── 강사 보수
+function loadSal(){const m=$("t3m").value,yr=curYr,t=$("salT").value,s=(ld("sal",{})[yr]||{})[`${m}-${t}`]||{};$("sBase").value=s.base||"";upSP();}
+function upSP(){const b=+$("sBase").value||0;const d=Math.round(b*0.033);$("salPre").textContent=`용역비 공제: ${fmt(d)}원  |  실지급: ${fmt(b-d)}원`;}
+function saveSal(){const m=$("t3m").value,yr=curYr,t=$("salT").value,s=ld("sal",{});if(!s[yr])s[yr]={};s[yr][`${m}-${t}`]={base:+$("sBase").value||0};sv("sal",s);rT3();}
+function rT3(){
+  const m=$("t3m").value,yr=curYr,sal=(ld("sal",{})[yr])||{};
+  const rows=TC.map(t=>{const s=sal[`${m}-${t}`]||{};const base=s.base||0;const d=Math.round(base*0.033);return{t,base,d,net:base-d};});
+  const total=rows.reduce((a,r)=>a+r.net,0);
+  const totalPre=rows.reduce((a,r)=>a+r.base,0);
+  $("t3tot").textContent=fmt(total)+"원";
+  // 세전 합계, 연간 합계
+  if($("t3totPre"))$("t3totPre").textContent=fmt(totalPre)+"원";
+  const yt=MO.map((_,i)=>{const mi=i+1;return TC.reduce((a,t)=>{const s=sal[`${mi}-${t}`]||{};const b=s.base||0;return a+(b-Math.round(b*0.033));},0);});
+  const yrTotal=yt.reduce((a,b)=>a+b,0);
+  if($("t3totYr"))$("t3totYr").textContent=fmt(yrTotal)+"원";
+  $("t3tb").innerHTML=rows.map(({t,base,d,net})=>`<tr onclick="$('salT').value='${t}';loadSal()">
+    <td>${t}</td>
+    <td>${fmt(base)}</td>
+    <td style="color:var(--red)">${fmt(d)}</td>
+    <td style="font-weight:700;color:${net>0?"var(--navy)":"var(--text3)"}">${fmt(net)}</td>
+  </tr>`).join("");
+  const mx=Math.max(...yt,1);const cm=+m;
+  $("t3ch").innerHTML=yt.map((v,i)=>{
+    const lbl=v?`<span style="font-size:8px;font-weight:700;color:${i+1===cm?"var(--navy)":"var(--text2)"};">${(v/10000).toFixed(0)}만</span>`:"";
+    const bar=v?`<div class="b" style="background:${i+1===cm?"var(--navy)":"var(--border2)"};height:${Math.max(v/mx*70,3)}px;width:100%"></div>`:"";
+    return`<div class="bg"><div class="bi" style="height:85px;flex-direction:column;align-items:center;justify-content:flex-end">${lbl}${bar}</div><span class="bl ${i+1===cm?"hi":""}">${i+1}</span></div>`;
+  }).join("");
+  // 강사별 셀렉트 초기화
+  if($("t3TcSel")&&$("t3TcSel").options.length===0){
+    TC.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;$("t3TcSel").appendChild(o);});
+  }
+  rT3Tc();
+  loadSal();
+}
+function rT3Tc(){
+  const t=$("t3TcSel")?$("t3TcSel").value:TC[0];
+  const yr=curYr,sal=(ld("sal",{})[yr])||{};
+  const rows=MO.map((_,i)=>{const mi=i+1,s=sal[`${mi}-${t}`]||{};const base=s.base||0,d=Math.round(base*0.033);return{mi,base,d,net:base-d};});
+  const yrTot=rows.reduce((a,r)=>a+r.net,0);
+  if($("t3TcBody"))$("t3TcBody").innerHTML=rows.map(({mi,base,d,net})=>`<tr>
+    <td style="color:var(--text2)">${mi}월</td>
+    <td>${fmt(base)}</td>
+    <td style="color:var(--red)">${fmt(d)}</td>
+    <td style="font-weight:700;color:${net>0?"var(--navy)":"var(--text3)"}">${fmt(net)}</td>
+  </tr>`).join("");
+  if($("t3TcYrTot"))$("t3TcYrTot").textContent=fmt(yrTot)+"원";
+  // 강사별 월별 그래프
+  if($("t3TcCh")){
+    const nets=rows.map(r=>r.net);
+    const mx2=Math.max(...nets,1);
+    $("t3TcCh").innerHTML=rows.map(({mi,net})=>{
+      const h=net?Math.max(net/mx2*70,3):0;
+      const lbl=net?`<span style="font-size:8px;font-weight:700;color:var(--navy)">${(net/10000).toFixed(0)}만</span>`:"";
+      const bar=net?`<div class="b" style="background:var(--navy);height:${h}px;width:100%;border-radius:2px 2px 0 0"></div>`:"";
+      return`<div class="bg"><div class="bi" style="height:85px;flex-direction:column;align-items:center;justify-content:flex-end">${lbl}${bar}</div><span class="bl">${mi}</span></div>`;
+    }).join("");
+  }
+}
+// ══ T7 핀 관리 ══
+let pinVisible=false;
+function togglePin(){
+  pinVisible=!pinVisible;
+  $("curPinView").textContent=pinVisible?PIN:"****";
+  $("pinToggleBtn").textContent=pinVisible?"숨기기":"보기";
+}
+function changePin(){
+  const p1=$("newPin1").value.trim(),p2=$("newPin2").value.trim();
+  const msg=$("pinChgMsg");
+  if(p1.length!==4){msg.style.color="var(--red)";msg.textContent="4자리 숫자를 입력해주세요";return;}
+  if(p1!==p2){msg.style.color="var(--red)";msg.textContent="핀번호가 일치하지 않습니다";return;}
+  PIN=p1;
+  localStorage.setItem("dash_pin",p1);
+  msg.style.color="var(--green)";msg.textContent="✓ 핀번호가 변경되었습니다";
+  $("newPin1").value="";$("newPin2").value="";
+  if(pinVisible){$("curPinView").textContent=PIN;}else{$("curPinView").textContent="****";}
+  setTimeout(()=>msg.textContent="",3000);
+}
+function initPinMgmt(){
+  $("curPinView").textContent="****";
+  pinVisible=false;
+}
+</script>
+</body>
+</html>
