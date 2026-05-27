@@ -418,6 +418,7 @@ textarea{resize:vertical;min-height:64px}
         <div style="font-size:11px;color:var(--text3)">여러 파일 동시 선택 가능</div>
       </div>
       <div id="uploadStatus2" style="font-size:11px;color:var(--green);margin-top:8px;text-align:center"></div>
+      <div id="fileList" style="margin-top:8px"></div>
     </div>
     <!-- 매출 입력 -->
     <div class="card" style="margin:0;border:2px solid #6EAA95;background:linear-gradient(135deg,#F4F7F6,#EDF2F0)">
@@ -1009,16 +1010,16 @@ async function handleExpFileNew(input){
       // 중복 제거 (같은 날짜+적요+금액)
       newRows.forEach(nr=>{
         const dup=t2ExpRows.find(er=>er.date===nr.date&&er.desc===nr.desc&&er.amt===nr.amt);
-        if(!dup){t2ExpRows.push(nr);added++;}
+        if(!dup){nr.fileKey=file.name;t2ExpRows.push(nr);added++;}
       });
     }catch(e){console.error(e);}
   }
   // 날짜 내림차순 정렬
   t2ExpRows.sort((a,b)=>b.date.localeCompare(a.date));
   saveT2ExpRows();
-  status.textContent=`✓ ${files.length}개 파일, ${added}건 추가됨 (총 ${t2ExpRows.length}건)`;
   status.style.color='var(--green)';
   input.value='';
+  renderFileList();
   renderT2();
 }
 
@@ -1313,6 +1314,7 @@ async function initT2(){
   }
   if($('uploadStatus2'))$('uploadStatus2').textContent='';
   renderTransferGrid();
+  renderFileList();
   renderT2();
 }
 
@@ -1572,6 +1574,33 @@ function renderTransferGrid(){
   if($('t2TrGrid1'))$('t2TrGrid1').innerHTML=Array.from({length:6},(_,i)=>mkCell(i)).join('');
   if($('t2TrGrid2'))$('t2TrGrid2').innerHTML=Array.from({length:6},(_,i)=>mkCell(i+6)).join('');
   updateTransferTotal();
+}
+
+
+// ══ 업로드 파일 목록 관리 ══
+function renderFileList(){
+  const el=$('fileList');if(!el)return;
+  // 업로드된 파일명 목록
+  const fileKeys=[...new Set(t2ExpRows.map(r=>r.fileKey).filter(Boolean))];
+  if(!fileKeys.length){el.innerHTML='';return;}
+  el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px">업로드된 파일</div>`+
+    fileKeys.map(fk=>{
+      const cnt=t2ExpRows.filter(r=>r.fileKey===fk).length;
+      return`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;margin-bottom:4px">
+        <span style="font-size:11px;color:var(--text1)">📄 ${fk} <span style="color:var(--text3)">(${cnt}건)</span></span>
+        <button onclick="deleteFile('${fk.replace(/'/g,"\'")}')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:11px;font-weight:700;padding:2px 6px">✕ 삭제</button>
+      </div>`;
+    }).join('');
+}
+
+function deleteFile(fileKey){
+  if(!confirm(`"${fileKey}" 파일의 ${t2ExpRows.filter(r=>r.fileKey===fileKey).length}건을 삭제할까요?`)) return;
+  t2ExpRows=t2ExpRows.filter(r=>r.fileKey!==fileKey);
+  saveT2ExpRows();
+  renderFileList();
+  renderT2();
+  const status=$('uploadStatus2');
+  if(status){status.textContent=`✓ "${fileKey}" 삭제 완료`;status.style.color='var(--red)';setTimeout(()=>status.textContent='',2000);}
 }
 
 </script>
