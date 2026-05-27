@@ -375,6 +375,12 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
       <div class="toolbar-right">
         <select id="subject-download-select" onchange="downloadSubjectExcel(this.value)" style="padding:8px 12px;border:1.5px solid var(--navy);border-radius:10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--navy);font-weight:600;cursor:pointer;background:#fff;min-width:130px;flex-shrink:0;">
           <option value="" disabled selected>📥 과목별 다운로드</option>
+          <option value="전체">전체 과목</option>
+          <option value="공수1">공수1</option>
+          <option value="공수2">공수2</option>
+          <option value="기하">기하</option>
+          <option value="확통">확통</option>
+          <option value="미적분1">미적분1</option>
         </select>
         <select id="grade-download-select" onchange="downloadGradeExcel(this.value)" style="padding:8px 12px;border:1.5px solid var(--navy);border-radius:10px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--navy);font-weight:600;cursor:pointer;background:#fff;min-width:130px;flex-shrink:0;">
           <option value="" disabled selected>📊 학년별 다운로드</option>
@@ -6047,23 +6053,17 @@ function initApp(){
       appId:"1:805131169031:web:ed09dc28e2ae030f9329a2"
     });
   }
-  window.db = firebase.firestore();
+  db = firebase.firestore();
   loadPins();
   loadScoreForm();
-  // subject-filter 이벤트 한 번만 등록
-  const sf = document.getElementById('subject-filter');
-  if(sf) sf.addEventListener('change', function(){
-    currentSubjectFilter = this.value;
-    renderAdminTableFull();
-  });
   const _savedUser = localStorage.getItem('score_last_user');
   if(_savedUser){
     loadPins().then(()=>{ applyLogin(_savedUser); });
   }
   document.getElementById('login-btn').addEventListener('click', doLogin);
   document.getElementById('login-pin').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-  const sf = document.getElementById('subject-filter');
-  if(sf) sf.addEventListener('change', function(){
+  const sfEl = document.getElementById('subject-filter');
+  if(sfEl) sfEl.addEventListener('change', function(){
     currentSubjectFilter = this.value;
     renderAdminTableFull();
   });
@@ -6077,6 +6077,7 @@ document.addEventListener('DOMContentLoaded', initApp);
 // ──────────────────────────────────────────
 let currentUser = null;
 let isAdmin = false;
+let db = null;
 let currentExam = 0; // 0=1중, 1=1기, 2=2중, 3=2기
 let currentGrade = '전체';
 let currentSubjectFilter = '전체';
