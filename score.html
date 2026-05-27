@@ -6152,14 +6152,98 @@ document.getElementById('logout-btn').addEventListener('click',()=>{
 });
 
 // ──────────────────────────────────────────
+// 업로드 파일 삭제
+// ──────────────────────────────────────────
+async function deleteUploadFile(fileName){
+  // 해당 파일로 자동등록된 학생 찾기
+  const autoStudents = students.filter(s=>
+    s.source === 'score_upload' && s.uploadFile && s.uploadFile.includes(fileName)
+  );
+
+  const examKey = ['exam_1mid','exam_1fin','exam_2mid','exam_2fin'][currentExam];
+  const examLabel = ['1학기 중간','1학기 기말','2학기 중간','2학기 기말'][currentExam];
+
+  const msg = autoStudents.length > 0
+    ? `📄 "${fileName}" 삭제\n\n` +
+      `• 이 파일의 ${examLabel} 성적 초기화\n` +
+      `• 자동등록 학생 ${autoStudents.length}명 삭제:\n  ${autoStudents.map(s=>s.name+(s.subject?'('+s.subject+')':'')).join(', ')}\n\n` +
+      `전체 일괄등록 학생은 유지됩니다.\n계속할까요?`
+    : `📄 "${fileName}" 삭제\n\n` +
+      `• 이 파일의 ${examLabel} 성적 초기화\n` +
+      `• 자동등록 학생 없음 (성적만 삭제)\n\n계속할까요?`;
+
+  if(!confirm(msg)) return;
+
+  try{
+    const batch = db.batch();
+
+    // 1. 해당 파일로 자동등록된 학생 삭제
+    for(const s of autoStudents){
+      batch.delete(db.collection('score_students').doc(s.id));
+      batch.delete(db.collection('score_records').doc(s.id));
+    }
+    await batch.commit();
+
+    // 2. 나머지 학생들의 해당 시험 성적 초기화
+    // (uploadFile이 이 파일인 학생 중 자동등록 아닌 학생)
+    const scoreStudents = students.filter(s=>
+      s.uploadFile && s.uploadFile.includes(fileName) && s.source !== 'score_upload'
+    );
+    if(scoreStudents.length > 0){
+      const batch2 = db.batch();
+      const gradeKey = getGradeKey(examKey);
+      scoreStudents.forEach(s=>{
+        batch2.update(db.collection('score_records').doc(s.id), {
+          [examKey]: null,
+          [gradeKey]: null
+        });
+        s[examKey] = null;
+        s[gradeKey] = null;
+      });
+      await batch2.commit();
+    }
+
+    // 3. 로컬 students 배열에서 자동등록 학생 제거
+    students = students.filter(s=>!(s.source==='score_upload' && s.uploadFile && s.uploadFile.includes(fileName)));
+
+    // 4. Firebase score_upload_history에서 파일명 제거
+    const histDoc = await db.collection('settings').doc('score_upload_history').get({source:'server'});
+    if(histDoc.exists){
+      const data = histDoc.data();
+      const byExam = data.byExam || {};
+      if(byExam[examKey]){
+        byExam[examKey] = byExam[examKey].filter(n=>n!==fileName);
+        await db.collection('settings').doc('score_upload_history').set(
+          {byExam, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
+          {merge:true}
+        );
+        showUploadFileNames(byExam[examKey]);
+      }
+    }
+
+    alert(`✅ "${fileName}" 삭제 완료!`+
+      (autoStudents.length>0 ? `\n자동등록 학생 ${autoStudents.length}명 삭제됨` : ''));
+    renderAdminTableFull();
+    updateStats();
+  }catch(e){ alert('삭제 중 오류가 발생했습니다.'); console.error(e); }
+}
+
+// ──────────────────────────────────────────
 // 업로드 파일명 표시 헬퍼
 // ──────────────────────────────────────────
 function showUploadFileNames(fileNames){
   const el = document.getElementById('last-upload-filenames-exam');
   if(!el) return;
-  if(!fileNames || fileNames.length === 0){ el.style.display='none'; return; }
-  el.textContent = '📁 ' + fileNames.join(', ');
+  if(!fileNames || fileNames.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display = '';
+  el.innerHTML = fileNames.map(name=>`
+    <span style="display:inline-flex;align-items:center;gap:4px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:3px 8px;font-size:11px;color:#1D4ED8;font-weight:600;">
+      📁 ${name}
+      <button onclick="deleteUploadFile('${name.replace(/'/g,"\\'")}')"
+        title="이 파일 삭제"
+        style="border:none;background:none;color:#EF4444;cursor:pointer;font-size:13px;font-weight:700;padding:0 2px;line-height:1;">🗑️</button>
+    </span>
+  `).join('');
 }
 
 // ──────────────────────────────────────────
@@ -6242,11 +6326,14 @@ function renderAdminTableFull(){
       subjectSel.innerHTML = '<option value="전체">📚 전체 과목</option>' +
         allSubjects.map(s=>`<option value="${s}">${s}</option>`).join('');
     }
-    subjectSel.value = allSubjects.includes(prev) ? prev : '전체';
+    const validVals = ['전체', ...allSubjects];
+    subjectSel.value = validVals.includes(prev) ? prev : '전체';
+    if(!subjectSel.value) subjectSel.value = '전체';
   }
 
-  // 드롭박스 동기화 후 현재 선택값 읽기
-  const subjectFilter = document.getElementById('subject-filter')?.value || '전체';
+  // 드롭박스 동기화 후 현재 선택값 읽기 (빈값 방어)
+  const rawFilter = document.getElementById('subject-filter')?.value || '전체';
+  const subjectFilter = (!rawFilter || rawFilter === '') ? '전체' : rawFilter;
 
   // 과목별 다운로드 드롭박스도 동기화
   const subDownSel = document.getElementById('subject-download-select');
@@ -6583,6 +6670,7 @@ async function confirmScoreUpload(){
     for(const p of autoCreate){
       const base = students.find(s=>s.name===p.name);
       if(!base) continue;
+      const uploadFileNames = adminUploadedFiles.map(f=>f.fileName).join(', ');
       const newDoc = {
         name: base.name,
         school: base.school||'',
@@ -6590,6 +6678,8 @@ async function confirmScoreUpload(){
         teacher: base.teacher||'',
         subject: p.subject,
         order: students.length + 1,
+        source: 'score_upload',
+        uploadFile: uploadFileNames,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
       const ref = await db.collection('score_students').add(newDoc);
@@ -6795,14 +6885,15 @@ function renderAdminScorePreview(examIdx, newParsed){
   const uploadedSubjects = [...new Set(scoreUploadParsed.map(p=>p.subject||'').filter(Boolean))].sort();
   const subjectSel = document.getElementById('subject-filter');
   if(subjectSel && uploadedSubjects.length>0){
-    const prev = subjectSel.value;
+    const prev = subjectSel.value || '전체';
     const allSubjects = [...new Set([
       ...students.map(s=>s.subject||'').filter(Boolean),
       ...uploadedSubjects
     ])].sort();
     subjectSel.innerHTML = '<option value="전체">📚 전체 과목</option>' +
       allSubjects.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
-    if(allSubjects.includes(prev)) subjectSel.value = prev;
+    subjectSel.value = allSubjects.includes(prev) ? prev : '전체';
+    if(!subjectSel.value) subjectSel.value = '전체';
   }
   document.getElementById('t-score-preview-title').textContent='[원장] '+examLabel+' 성적 미리보기';
   document.getElementById('t-score-preview-info').innerHTML=
