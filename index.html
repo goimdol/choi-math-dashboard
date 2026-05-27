@@ -217,228 +217,220 @@ textarea{resize:vertical;min-height:64px}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 /* ── Score App Styles ── */
-:root{
-  --navy:#122C59;--navy-light:#1A3D7A;--navy-dark:#0C1F40;
-  --red:#D22832;--orange:#F97316;--yellow:#FFC107;
-  --green:#16A34A;--green-light:#DCFCE7;
-  --bg:#F4F6FA;--card:#FFF;--border:#E2E8F0;
-  --text:#1A1A1A;--text2:#64748B;--text3:#B0BEC5;
-  --shadow:0 2px 8px rgba(18,44,89,0.08);
-  --shadow-lg:0 8px 32px rgba(18,44,89,0.14);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+
+
 
 /* 로그인 */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--navy-dark) 0%,var(--navy) 50%,var(--navy-light) 100%);}
-.login-card{background:#fff;border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:var(--shadow-lg);}
-.login-logo{text-align:center;margin-bottom:2rem;}
-.login-logo-icon{font-size:44px;display:block;margin-bottom:10px;}
-.login-logo h1{font-size:20px;font-weight:900;color:var(--navy);}
-.login-logo p{font-size:13px;color:var(--text2);margin-top:4px;}
-.lbl{font-size:13px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500;}
-.login-select,.login-pin{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);margin-bottom:1rem;font-size:15px;}
-.login-pin{font-size:24px;letter-spacing:12px;font-family:monospace;text-align:center;margin-bottom:1.5rem;}
-.login-select:focus,.login-pin:focus{outline:none;border-color:var(--navy);}
-.login-btn{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:background .2s;}
-.login-btn:hover{background:var(--navy-light);}
-.login-error{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none;}
+  #score-root #sc-login-screen {min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--navy-dark) 0%,var(--navy) 50%,var(--navy-light) 100%);}
+  #score-root .login-card {background:#fff;border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:var(--shadow-lg);}
+  #score-root .login-logo {text-align:center;margin-bottom:2rem;}
+  #score-root .login-logo-icon {font-size:44px;display:block;margin-bottom:10px;}
+  #score-root .login-logo h1 {font-size:20px;font-weight:900;color:var(--navy);}
+  #score-root .login-logo p {font-size:13px;color:var(--text2);margin-top:4px;}
+  #score-root .lbl {font-size:13px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500;}
+  #score-root .login-select, #score-root .login-pin {width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);margin-bottom:1rem;font-size:15px;}
+  #score-root .login-pin {font-size:24px;letter-spacing:12px;font-family:monospace;text-align:center;margin-bottom:1.5rem;}
+  #score-root .login-select:focus, #score-root .login-pin:focus {outline:none;border-color:var(--navy);}
+  #score-root .login-btn {width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:background .2s;}
+  #score-root .login-btn:hover {background:var(--navy-light);}
+  #score-root .login-error {color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none;}
 
 /* 앱 레이아웃 */
-#app{display:none;min-height:100vh;flex-direction:column;}
-.app-header{background:var(--navy);color:#fff;padding:0 1.5rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(18,44,89,0.25);}
-.header-logo{font-size:16px;font-weight:900;flex:1;letter-spacing:-0.3px;}
-.header-logo span{font-size:12px;font-weight:400;opacity:.7;margin-left:8px;}
-.header-user{display:flex;align-items:center;gap:10px;}
-.header-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
-.hdr-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;color:#fff;font-family:'Noto Sans KR',sans-serif;transition:background .2s;}
-.hdr-btn:hover{background:rgba(255,255,255,.22);}
-.hdr-btn.danger{background:rgba(210,40,50,.3);border-color:rgba(210,40,50,.5);}
+  #score-root #sc-app {display:none;min-height:100vh;flex-direction:column;}
+  #score-root .app-header {background:var(--navy);color:#fff;padding:0 1.5rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(18,44,89,0.25);}
+  #score-root .header-logo {font-size:16px;font-weight:900;flex:1;letter-spacing:-0.3px;}
+  #score-root .header-logo span {font-size:12px;font-weight:400;opacity:.7;margin-left:8px;}
+  #score-root .header-user {display:flex;align-items:center;gap:10px;}
+  #score-root .header-avatar {width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+  #score-root .hdr-btn {background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;color:#fff;font-family:'Noto Sans KR',sans-serif;transition:background .2s;}
+  #score-root .hdr-btn:hover {background:rgba(255,255,255,.22);}
+  #score-root .hdr-btn.danger {background:rgba(210,40,50,.3);border-color:rgba(210,40,50,.5);}
 
 /* 콘텐츠 */
-.app-content{flex:1;padding:1.5rem;}
-.page{display:none;}
-.page.active{display:block;}
+  #score-root .app-content {flex:1;padding:1.5rem;}
+  #score-root .page {display:none;}
+  #score-root .page.active {display:block;}
 
 /* 카드 */
-.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1rem;}
-.card-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+  #score-root .card {background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1rem;}
+  #score-root .card-title {font-size:15px;font-weight:700;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
 
 /* 탭 */
-.tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
-.tab-btn{padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
-.tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700;}
-.tab-btn:hover:not(.active){background:var(--bg);}
+  #score-root .tabs {display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
+  #score-root .tab-btn {padding:8px 16px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+  #score-root .tab-btn.active {background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700;}
+  #score-root .tab-btn:hover:not(.active) {background:var(--bg);}
 
 /* 시험 탭 */
-.exam-tabs{display:flex;gap:4px;margin-bottom:1rem;background:#F1F5F9;border-radius:12px;padding:4px;}
-.exam-tab{flex:1;padding:8px 4px;border-radius:8px;border:none;background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;text-align:center;transition:all .2s;}
-.exam-tab.active{background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  #score-root .exam-tabs {display:flex;gap:4px;margin-bottom:1rem;background:#F1F5F9;border-radius:12px;padding:4px;}
+  #score-root .exam-tab {flex:1;padding:8px 4px;border-radius:8px;border:none;background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);font-family:'Noto Sans KR',sans-serif;text-align:center;transition:all .2s;}
+  #score-root .exam-tab.active {background:#fff;color:var(--navy);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08);}
 
 /* 검색 */
-.search-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center;}
-.search-input{flex:1;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;font-size:14px;background:#fff;}
-.search-input:focus{outline:none;border-color:var(--navy);}
+  #score-root .search-row {display:flex;gap:8px;margin-bottom:1rem;align-items:center;}
+  #score-root .search-input {flex:1;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;font-size:14px;background:#fff;}
+  #score-root .search-input:focus {outline:none;border-color:var(--navy);}
 
 /* 테이블 */
-.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-thead tr{background:var(--navy);color:#fff;}
-th{padding:11px 12px;text-align:center;font-weight:600;white-space:nowrap;font-size:12px;}
-th:first-child{text-align:left;padding-left:16px;}
-td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;}
-td:first-child{text-align:left;padding-left:16px;}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:#F8FAFF;}
-tbody tr:nth-child(even){background:#FAFBFE;}
-tbody tr:nth-child(even):hover{background:#F8FAFF;}
+  #score-root .table-wrap {overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+  #score-root table {width:100%;border-collapse:collapse;font-size:13px;}
+  #score-root thead tr {background:var(--navy);color:#fff;}
+  #score-root th {padding:11px 12px;text-align:center;font-weight:600;white-space:nowrap;font-size:12px;}
+  #score-root th:first-child {text-align:left;padding-left:16px;}
+  #score-root td {padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;}
+  #score-root td:first-child {text-align:left;padding-left:16px;}
+  #score-root tbody tr:last-child td {border-bottom:none;}
+  #score-root tbody tr:hover {background:#F8FAFF;}
+  #score-root tbody tr:nth-child(even) {background:#FAFBFE;}
+  #score-root tbody tr:nth-child(even):hover {background:#F8FAFF;}
 
 /* 성적 배지 */
-.score-badge{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:28px;border-radius:8px;font-size:13px;font-weight:700;padding:0 8px;}
-.score-100{background:#FFF0F0;color:var(--red);}
-.score-90b{background:#EFF6FF;color:#2563EB;}
-.score-80{background:#FEFCE8;color:#854D0E;}
-.score-other{background:#F1F5F9;color:var(--text2);}
-.score-empty{color:var(--text3);font-size:11px;}
+  #score-root .score-badge {display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:28px;border-radius:8px;font-size:13px;font-weight:700;padding:0 8px;}
+  #score-root .score-100 {background:#FFF0F0;color:var(--red);}
+  #score-root .score-90b {background:#EFF6FF;color:#2563EB;}
+  #score-root .score-80 {background:#FEFCE8;color:#854D0E;}
+  #score-root .score-other {background:#F1F5F9;color:var(--text2);}
+  #score-root .score-empty {color:var(--text3);font-size:11px;}
 
 /* 등급 배지 */
-.grade-badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:12px;font-weight:700;}
-.grade-1{background:#FFF0F0;color:var(--red);}
-.grade-2{background:#FFF7ED;color:var(--orange);}
-.grade-3{background:#FEFCE8;color:#854D0E;}
-.grade-4{background:#F0FDF4;color:var(--green);}
-.grade-5{background:#EFF6FF;color:#2563EB;}
-.grade-other{background:#F1F5F9;color:var(--text2);}
+  #score-root .grade-badge {display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;font-size:12px;font-weight:700;}
+  #score-root .grade-1 {background:#FFF0F0;color:var(--red);}
+  #score-root .grade-2 {background:#FFF7ED;color:var(--orange);}
+  #score-root .grade-3 {background:#FEFCE8;color:#854D0E;}
+  #score-root .grade-4 {background:#F0FDF4;color:var(--green);}
+  #score-root .grade-5 {background:#EFF6FF;color:#2563EB;}
+  #score-root .grade-other {background:#F1F5F9;color:var(--text2);}
 
 /* 입력 폼 */
-.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem;}
-.input-group{display:flex;flex-direction:column;gap:6px;}
-.input-group label{font-size:12px;color:var(--text2);font-weight:500;}
-.form-input,.form-select{padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;font-size:14px;width:100%;}
-.form-input:focus,.form-select:focus{outline:none;border-color:var(--navy);}
-.form-input.score-input{font-size:18px;font-weight:700;text-align:center;}
+  #score-root .input-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem;}
+  #score-root .input-group {display:flex;flex-direction:column;gap:6px;}
+  #score-root .input-group label {font-size:12px;color:var(--text2);font-weight:500;}
+  #score-root .form-input, #score-root .form-select {padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-family:'Noto Sans KR',sans-serif;font-size:14px;width:100%;}
+  #score-root .form-input:focus, #score-root .form-select:focus {outline:none;border-color:var(--navy);}
+  #score-root .form-input.score-input {font-size:18px;font-weight:700;text-align:center;}
 
 /* 버튼 */
-.btn{padding:10px 20px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
-.btn-primary{background:var(--navy);color:#fff;}
-.btn-primary:hover{background:var(--navy-light);}
-.btn-success{background:var(--green);color:#fff;}
-.btn-success:hover{background:#15803D;}
-.btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--navy);}
-.btn-outline:hover{background:var(--bg);}
-.btn-danger{background:var(--red);color:#fff;}
-.btn-danger:hover{background:#B91C1C;}
-.btn-sm{padding:5px 12px;font-size:12px;border-radius:7px;}
-.btn-icon{background:none;border:none;cursor:pointer;font-size:16px;padding:4px;border-radius:6px;color:var(--text2);}
-.btn-icon:hover{background:var(--bg);color:var(--navy);}
+  #score-root .btn {padding:10px 20px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+  #score-root .btn-primary {background:var(--navy);color:#fff;}
+  #score-root .btn-primary:hover {background:var(--navy-light);}
+  #score-root .btn-success {background:var(--green);color:#fff;}
+  #score-root .btn-success:hover {background:#15803D;}
+  #score-root .btn-outline {background:#fff;color:var(--navy);border:1.5px solid var(--navy);}
+  #score-root .btn-outline:hover {background:var(--bg);}
+  #score-root .btn-danger {background:var(--red);color:#fff;}
+  #score-root .btn-danger:hover {background:#B91C1C;}
+  #score-root .btn-sm {padding:5px 12px;font-size:12px;border-radius:7px;}
+  #score-root .btn-icon {background:none;border:none;cursor:pointer;font-size:16px;padding:4px;border-radius:6px;color:var(--text2);}
+  #score-root .btn-icon:hover {background:var(--bg);color:var(--navy);}
 
 /* 모달 */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:500;padding:1rem;}
-.modal-overlay.open{display:flex;}
-.modal{background:#fff;border-radius:20px;padding:2rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
-.modal h3{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:1.25rem;}
-.modal-btns{display:flex;gap:8px;margin-top:1.5rem;justify-content:flex-end;}
+  #score-root .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:500;padding:1rem;}
+  #score-root .modal-overlay.open {display:flex;}
+  #score-root .modal {background:#fff;border-radius:20px;padding:2rem;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+  #score-root .modal h3 {font-size:17px;font-weight:700;color:var(--navy);margin-bottom:1.25rem;}
+  #score-root .modal-btns {display:flex;gap:8px;margin-top:1.5rem;justify-content:flex-end;}
 
 /* 원장 통계 카드 */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
-.stat-card{background:#fff;border-radius:14px;padding:1.1rem 1rem;text-align:center;box-shadow:var(--shadow);border-left:4px solid transparent;}
-.stat-card.s-total{border-color:var(--navy);}
-.stat-card.s-100{border-color:var(--red);}
-.stat-card.s-90{border-color:var(--orange);}
-.stat-card.s-avg{border-color:var(--green);}
-.stat-val{font-size:26px;font-weight:900;color:var(--navy);}
-.stat-card.s-100 .stat-val{color:var(--red);}
-.stat-card.s-90 .stat-val{color:var(--orange);}
-.stat-card.s-avg .stat-val{color:var(--green);}
-.stat-lbl{font-size:11px;color:var(--text2);margin-top:4px;}
+  #score-root .stats-row {display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+  #score-root .stat-card {background:#fff;border-radius:14px;padding:1.1rem 1rem;text-align:center;box-shadow:var(--shadow);border-left:4px solid transparent;}
+  #score-root .stat-card.s-total {border-color:var(--navy);}
+  #score-root .stat-card.s-100 {border-color:var(--red);}
+  #score-root .stat-card.s-90 {border-color:var(--orange);}
+  #score-root .stat-card.s-avg {border-color:var(--green);}
+  #score-root .stat-val {font-size:26px;font-weight:900;color:var(--navy);}
+  #score-root .stat-card.s-100 .stat-val {color:var(--red);}
+  #score-root .stat-card.s-90 .stat-val {color:var(--orange);}
+  #score-root .stat-card.s-avg .stat-val {color:var(--green);}
+  #score-root .stat-lbl {font-size:11px;color:var(--text2);margin-top:4px;}
 
 /* 학생 순서 번호 */
-.order-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--bg);border-radius:5px;font-size:11px;color:var(--text2);font-weight:600;flex-shrink:0;}
+  #score-root .order-num {display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--bg);border-radius:5px;font-size:11px;color:var(--text2);font-weight:600;flex-shrink:0;}
 
 /* 툴바 */
-.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;}
-.toolbar-left{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.toolbar-right{display:flex;gap:8px;align-items:center;}
+  #score-root .toolbar {display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;}
+  #score-root .toolbar-left {display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  #score-root .toolbar-right {display:flex;gap:8px;align-items:center;}
 
 /* 빈 상태 */
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3);}
-.empty-state .empty-icon{font-size:40px;display:block;margin-bottom:10px;}
-.empty-state p{font-size:14px;}
+  #score-root .empty-state {text-align:center;padding:3rem 1rem;color:var(--text3);}
+  #score-root .empty-state .empty-icon {font-size:40px;display:block;margin-bottom:10px;}
+  #score-root .empty-state p {font-size:14px;}
 
 /* 학년 뱃지 */
-.grade-lv{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;}
-.g-mid1{background:#EDE9FE;color:#6B46C1;}
-.g-mid2{background:#E0F2FE;color:#0369A1;}
-.g-mid3{background:#DCFCE7;color:#166534;}
-.g-high1{background:#FFF7ED;color:#C2410C;}
-.g-high2{background:#FEF0F0;color:#A32D2D;}
-.g-high3{background:#F1F5F9;color:#475569;}
+  #score-root .grade-lv {display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;}
+  #score-root .g-mid1 {background:#EDE9FE;color:#6B46C1;}
+  #score-root .g-mid2 {background:#E0F2FE;color:#0369A1;}
+  #score-root .g-mid3 {background:#DCFCE7;color:#166534;}
+  #score-root .g-high1 {background:#FFF7ED;color:#C2410C;}
+  #score-root .g-high2 {background:#FEF0F0;color:#A32D2D;}
+  #score-root .g-high3 {background:#F1F5F9;color:#475569;}
 
 /* 선생님 화면 입력 테이블 */
-.input-table input[type=number]{width:70px;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;text-align:center;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
-.input-table input[type=number]:focus{outline:none;border-color:var(--navy);}
-.input-table select{width:70px;padding:5px;border:1.5px solid var(--border);border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:13px;}
-.input-table select:focus{outline:none;border-color:var(--navy);}
-.saved-indicator{font-size:11px;color:var(--green);display:none;}
+  #score-root .input-table input[type=number] {width:70px;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;text-align:center;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+  #score-root .input-table input[type=number]:focus {outline:none;border-color:var(--navy);}
+  #score-root .input-table select {width:70px;padding:5px;border:1.5px solid var(--border);border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:13px;}
+  #score-root .input-table select:focus {outline:none;border-color:var(--navy);}
+  #score-root .saved-indicator {font-size:11px;color:var(--green);display:none;}
 
 /* 반응형 */
 @media(max-width:768px){
-  .stats-row{grid-template-columns:repeat(2,1fr);}
-  .input-grid{grid-template-columns:1fr;}
-  .app-content{padding:1rem;}
-  th,td{padding:8px;}
+  #score-root .stats-row {grid-template-columns:repeat(2,1fr);}
+  #score-root .input-grid {grid-template-columns:1fr;}
+  #score-root .app-content {padding:1rem;}
+  #score-root th, #score-root td {padding:8px;}
 }
 
 /* 성적 필터 버튼 */
-.score-filter-btn{padding:7px 14px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
-.score-filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
-.score-filter-btn.s100.active{background:var(--red);border-color:var(--red);color:#fff;}
-.score-filter-btn.s90.active{background:#2563EB;border-color:#2563EB;color:#fff;}
+  #score-root .score-filter-btn {padding:7px 14px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+  #score-root .score-filter-btn.active {background:var(--navy);color:#fff;border-color:var(--navy);}
+  #score-root .score-filter-btn.s100.active {background:var(--red);border-color:var(--red);color:#fff;}
+  #score-root .score-filter-btn.s90.active {background:#2563EB;border-color:#2563EB;color:#fff;}
 
 /* 명단 모달 */
-.masked-list-grid{display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;}
-.masked-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);}
-.masked-name{font-size:18px;font-weight:900;flex:1;}
-.masked-name.c100{color:var(--red);}
-.masked-name.c90{color:#2563EB;}
-.masked-score{font-size:20px;font-weight:900;}
-.masked-score.c100{color:var(--red);}
-.masked-score.c90{color:#2563EB;}
+  #score-root .masked-list-grid {display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;}
+  #score-root .masked-item {display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);}
+  #score-root .masked-name {font-size:18px;font-weight:900;flex:1;}
+  #score-root .masked-name.c100 {color:var(--red);}
+  #score-root .masked-name.c90 {color:#2563EB;}
+  #score-root .masked-score {font-size:20px;font-weight:900;}
+  #score-root .masked-score.c100 {color:var(--red);}
+  #score-root .masked-score.c90 {color:#2563EB;}
 
 /* 프린트 숨김 */
-.no-print{display:none!important;}
+  #score-root .no-print {display:none!important;}
 
 /* 프린트 전용 명단 */
-#print-area{display:none;}
+  #score-root #print-area {display:none;}
 @media print{
-  body *{visibility:hidden;}
-  #print-area,#print-area *{visibility:visible;}
-  #print-area{display:block!important;position:fixed;inset:0;padding:20mm 15mm;background:#fff;}
-  .print-header{text-align:center;margin-bottom:16px;}
-  .print-title{font-size:22px;font-weight:900;margin-bottom:4px;}
-  .print-title.p100{color:var(--red);}
-  .print-title.p90{color:#2563EB;}
-  .print-subtitle{font-size:13px;color:#666;}
-  .print-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .print-item{border:1.5px solid #eee;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;}
-  .print-item.p100{border-color:#FECACA;background:#FFF5F5;}
-  .print-item.p90{border-color:#BFDBFE;background:#EFF6FF;}
-  .print-name{font-size:16px;font-weight:900;}
-  .print-name.p100{color:var(--red);}
-  .print-name.p90{color:#2563EB;}
-  .print-info{font-size:11px;color:#666;margin-top:2px;}
-  .print-score{font-size:18px;font-weight:900;}
-  .print-score.p100{color:var(--red);}
-  .print-score.p90{color:#2563EB;}
+  body 
+  #print-area,#print-area 
+  #score-root #print-area {display:block!important;position:fixed;inset:0;padding:20mm 15mm;background:#fff;}
+  #score-root .print-header {text-align:center;margin-bottom:16px;}
+  #score-root .print-title {font-size:22px;font-weight:900;margin-bottom:4px;}
+  #score-root .print-title.p100 {color:var(--red);}
+  #score-root .print-title.p90 {color:#2563EB;}
+  #score-root .print-subtitle {font-size:13px;color:#666;}
+  #score-root .print-grid {display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  #score-root .print-item {border:1.5px solid #eee;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;}
+  #score-root .print-item.p100 {border-color:#FECACA;background:#FFF5F5;}
+  #score-root .print-item.p90 {border-color:#BFDBFE;background:#EFF6FF;}
+  #score-root .print-name {font-size:16px;font-weight:900;}
+  #score-root .print-name.p100 {color:var(--red);}
+  #score-root .print-name.p90 {color:#2563EB;}
+  #score-root .print-info {font-size:11px;color:#666;margin-top:2px;}
+  #score-root .print-score {font-size:18px;font-weight:900;}
+  #score-root .print-score.p100 {color:var(--red);}
+  #score-root .print-score.p90 {color:#2563EB;}
 }
 
 /* 학생 관리 드래그 힌트 */
-.student-row-item{cursor:grab;}
-.student-row-item:active{cursor:grabbing;}
+  #score-root .student-row-item {cursor:grab;}
+  #score-root .student-row-item:active {cursor:grabbing;}
 
 /* 진행바 */
-.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px;}
-.progress-fill{height:100%;border-radius:3px;background:var(--navy);transition:width .4s;}
+  #score-root .progress-bar {height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px;}
+  #score-root .progress-fill {height:100%;border-radius:3px;background:var(--navy);transition:width .4s;}
 
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -6714,7 +6706,7 @@ function pinPress(n){
         $("mainHdr").style.display="flex";
         $("mainTabs").style.display="flex";
         $("mainContent").style.display="block";
-        initApp();
+        initDashboard();
       } else {
         $("pinErr").textContent="비밀번호가 맞지 않습니다";
         pinVal="";
@@ -6741,7 +6733,7 @@ function initFirebase(){
 }
 
 // ── 앱 초기화
-async function initScoreApp(){
+async function initDashboard(){
   initFirebase();
   const cm=new Date().getMonth()+1;
   ["t1m","t3m"].forEach(id=>{$(id).innerHTML=MO.map((m,i)=>`<option value="${i+1}"${i+1===cm?" selected":""}>${m}</option>`).join("");});
@@ -6763,7 +6755,7 @@ function go(id,btn){
   $(id).classList.add("on");btn.classList.add("on");
   if(id==="t6"){
     // score 앱 초기화 (직접 통합 방식)
-    if(typeof initScoreApp === 'function') initScoreApp();
+    if(typeof initScoreModule === 'function') initScoreModule();
   }
 }
 
@@ -7610,12 +7602,69 @@ function deleteFile(fileKey){
 }
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 // ── Score App JS ──
+let scoreDb = null;
+let scoreAppInitialized = false;
+
+async function initScoreModule(){
+  if(scoreAppInitialized) return; // 중복 초기화 방지
+  // Firebase 로드 대기
+  if(typeof firebase === 'undefined'){
+    setTimeout(initScoreModule, 100);
+    return;
+  }
+  // score 앱 전용 Firebase 앱 초기화
+  try{
+    if(!firebase.apps.some(a=>a.name==='score')){
+      firebase.initializeApp({
+        apiKey:"AIzaSyC6_EjWngSf_EQuqYP7j_rkC53fZUk6UCs",
+        authDomain:"choi-math-memo-1d6e6.firebaseapp.com",
+        projectId:"choi-math-memo-1d6e6",
+        storageBucket:"choi-math-memo-1d6e6.firebasestorage.app",
+        messagingSenderId:"805131169031",
+        appId:"1:805131169031:web:ed09dc28e2ae030f9329a2"
+      }, 'score');
+    }
+    scoreDb = firebase.app('score').firestore();
+  }catch(e){ console.error('scoreDb 초기화 오류:', e); return; }
+
+  // score 앱 로그인 화면 표시
+  const loginEl = document.getElementById('sc-login-screen');
+  const appEl = document.getElementById('sc-app');
+  if(loginEl) loginEl.style.display = 'flex';
+  if(appEl) appEl.style.display = 'none';
+
+  // subject-filter 이벤트 등록
+  const sf = document.getElementById('subject-filter');
+  if(sf && !sf._scoreListenerAdded){
+    sf.addEventListener('change', function(){
+      currentSubjectFilter = this.value;
+      renderAdminTableFull();
+    });
+    sf._scoreListenerAdded = true;
+  }
+
+  await loadPins();
+  await loadScoreForm();
+
+  // 자동 로그인
+  const savedUser = localStorage.getItem('score_last_user');
+  if(savedUser) loadPins().then(()=>{ applyLogin(savedUser); });
+
+  // 로그인 버튼 이벤트
+  const loginBtn = document.getElementById('sc-login-btn');
+  const loginPin = document.getElementById('sc-login-pin');
+  if(loginBtn && !loginBtn._scoreListenerAdded){
+    loginBtn.addEventListener('click', doLogin);
+    loginBtn._scoreListenerAdded = true;
+  }
+  if(loginPin && !loginPin._scoreListenerAdded){
+    loginPin.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+    loginPin._scoreListenerAdded = true;
+  }
+  scoreAppInitialized = true;
+}
 
 // ──────────────────────────────────────────
 // 상태
@@ -7656,18 +7705,18 @@ let PINS = {};
 // ──────────────────────────────────────────
 async function loadPins(){
   try{
-    const doc = await window.db.collection('settings').doc('score_pins').get();
+    const doc = await scoreDb.collection('settings').doc('score_pins').get();
     if(doc.exists) PINS = doc.data();
     else {
       PINS = {'원장':'1234'};
       TEACHERS_LIST.forEach(t=>PINS[t]='1234');
-      await window.db.collection('settings').doc('score_pins').set(PINS);
+      await scoreDb.collection('settings').doc('score_pins').set(PINS);
     }
   }catch(e){ console.error(e); }
   return PINS;
 }
 
-// subject-filter 이벤트는 initApp에서 등록
+// subject-filter 이벤트는 initScoreModule에서 등록
 
 function doLogin(){
   const user = document.getElementById('sc-login-user').value;
@@ -7738,12 +7787,12 @@ async function deleteUploadFile(fileName){
   if(!confirm(msg)) return;
 
   try{
-    const batch = window.db.batch();
+    const batch = scoreDb.batch();
 
     // 1. 해당 파일로 자동등록된 학생 삭제
     for(const s of autoStudents){
-      batch.delete(window.db.collection('score_students').doc(s.id));
-      batch.delete(window.db.collection('score_records').doc(s.id));
+      batch.delete(scoreDb.collection('score_students').doc(s.id));
+      batch.delete(scoreDb.collection('score_records').doc(s.id));
     }
     await batch.commit();
 
@@ -7753,10 +7802,10 @@ async function deleteUploadFile(fileName){
       s.uploadFile && s.uploadFile.includes(fileName) && s.source !== 'score_upload'
     );
     if(scoreStudents.length > 0){
-      const batch2 = window.db.batch();
+      const batch2 = scoreDb.batch();
       const gradeKey = getGradeKey(examKey);
       scoreStudents.forEach(s=>{
-        batch2.update(window.db.collection('score_records').doc(s.id), {
+        batch2.update(scoreDb.collection('score_records').doc(s.id), {
           [examKey]: null,
           [gradeKey]: null
         });
@@ -7770,13 +7819,13 @@ async function deleteUploadFile(fileName){
     students = students.filter(s=>!(s.source==='score_upload' && s.uploadFile && s.uploadFile.includes(fileName)));
 
     // 4. Firebase score_upload_history에서 파일명 제거
-    const histDoc = await window.db.collection('settings').doc('score_upload_history').get({source:'server'});
+    const histDoc = await scoreDb.collection('settings').doc('score_upload_history').get({source:'server'});
     if(histDoc.exists){
       const data = histDoc.data();
       const byExam = data.byExam || {};
       if(byExam[examKey]){
         byExam[examKey] = byExam[examKey].filter(n=>n!==fileName);
-        await window.db.collection('settings').doc('score_upload_history').set(
+        await scoreDb.collection('settings').doc('score_upload_history').set(
           {byExam, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
           {merge:true}
         );
@@ -7815,17 +7864,17 @@ function showUploadFileNames(fileNames){
 async function loadData(){
   try{
     // 학생 목록 (orderBy 제거 → JS에서 정렬, Firestore 인덱스 오류 방지)
-    const sSnap = await window.db.collection('score_students').get();
+    const sSnap = await scoreDb.collection('score_students').get();
     students = sSnap.docs.map(d=>({id:d.id,...d.data(), subject:d.data().subject||''}));
     // order 필드 기준 정렬
     students.sort((a,b)=>(a.order||0)-(b.order||0));
 
     // 반 목록
-    const cSnap = await window.db.collection('score_classes').get();
+    const cSnap = await scoreDb.collection('score_classes').get();
     classes = cSnap.docs.map(d=>({id:d.id,...d.data()}));
 
     // 성적 데이터 로드
-    const scSnap = await window.db.collection('score_records').get();
+    const scSnap = await scoreDb.collection('score_records').get();
     const scoreMap = {};
     scSnap.docs.forEach(d=>{ scoreMap[d.id] = d.data(); });
 
@@ -7847,7 +7896,7 @@ async function loadData(){
     // 원장: 현재 시험 탭 기준 업로드 파일명 불러오기
     if(isAdmin){
       try{
-        const histDoc = await window.db.collection('settings').doc('score_upload_history').get();
+        const histDoc = await scoreDb.collection('settings').doc('score_upload_history').get();
         if(histDoc.exists){
           const data = histDoc.data();
           const byExam = data.byExam || {};
@@ -8242,7 +8291,7 @@ async function confirmScoreUpload(){
         uploadFile: uploadFileNames,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
-      const ref = await window.db.collection('score_students').add(newDoc);
+      const ref = await scoreDb.collection('score_students').add(newDoc);
       // 로컬 students 배열에 추가
       const newStudent = {
         id: ref.id, ...newDoc,
@@ -8255,7 +8304,7 @@ async function confirmScoreUpload(){
       if(p.score!==null && !isNaN(p.score)) upd[key]=p.score;
       if(p.examGrade!==null && !isNaN(p.examGrade)) upd[gradeKey]=p.examGrade;
       if(Object.keys(upd).length){
-        await window.db.collection('score_records').doc(ref.id).set(upd, {merge:true});
+        await scoreDb.collection('score_records').doc(ref.id).set(upd, {merge:true});
         newStudent[key] = upd[key]??null;
         newStudent[gradeKey] = upd[gradeKey]??null;
       }
@@ -8273,9 +8322,9 @@ async function confirmScoreUpload(){
       if(p.score!==null&&!isNaN(p.score)) upd[key]=p.score;
       if(p.examGrade!==null&&!isNaN(p.examGrade)) upd[gradeKey]=p.examGrade;
       if(!Object.keys(upd).length) continue;
-      await window.db.collection('score_records').doc(p.studentId).set(upd,{merge:true});
+      await scoreDb.collection('score_records').doc(p.studentId).set(upd,{merge:true});
       if(p.subject && (!s.subject || s.subject !== p.subject)){
-        await window.db.collection('score_students').doc(p.studentId).update({subject: p.subject});
+        await scoreDb.collection('score_students').doc(p.studentId).update({subject: p.subject});
         s.subject = p.subject;
       }
       if(upd[key]!==undefined) s[key]=upd[key];
@@ -8296,12 +8345,12 @@ async function confirmScoreUpload(){
       const fileNames = adminUploadedFiles.map(f=>f.fileName);
       const examKey = ['exam_1mid','exam_1fin','exam_2mid','exam_2fin'][scoreUploadExam];
       try{
-        const doc = await window.db.collection('settings').doc('score_upload_history').get();
+        const doc = await scoreDb.collection('settings').doc('score_upload_history').get();
         const existing = doc.exists ? (doc.data().byExam || {}) : {};
         const prev = existing[examKey] || [];
         const merged = [...new Set([...prev, ...fileNames])];
         existing[examKey] = merged;
-        await window.db.collection('settings').doc('score_upload_history').set(
+        await scoreDb.collection('settings').doc('score_upload_history').set(
           {byExam: existing, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
           {merge: true}
         );
@@ -8620,8 +8669,8 @@ async function deleteMyStudent(id, name){
   const s = students.find(s=>s.id===id);
   if(!s || s.teacher !== currentUser){ alert('권한이 없습니다.'); return; }
   try{
-    await window.db.collection('score_students').doc(id).delete();
-    await window.db.collection('score_records').doc(id).delete();
+    await scoreDb.collection('score_students').doc(id).delete();
+    await scoreDb.collection('score_records').doc(id).delete();
     students = students.filter(s=>s.id!==id);
     renderMyStudentList();
     renderTeacherTable();
@@ -8715,7 +8764,7 @@ async function confirmTeacherExcelUpload(){
   let count=0;
   try{
     for(const s of teacherExcelParsed){
-      const ref = await window.db.collection('score_students').add({
+      const ref = await scoreDb.collection('score_students').add({
         name:s.name, school:s.school, grade:s.grade,
         teacher:s.teacher, enrollDate:s.enrollDate||'',
         order: students.length+1+count,
@@ -8758,7 +8807,7 @@ async function saveOneScore(studentId){
   const grade = gradeEl.value ? parseInt(gradeEl.value) : null;
 
   try{
-    await window.db.collection('score_records').doc(studentId).set({
+    await scoreDb.collection('score_records').doc(studentId).set({
       [key]: score,
       [gradeKey]: grade,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -8774,7 +8823,7 @@ async function saveOneScore(studentId){
 async function saveAllScores(){
   const key = EXAM_KEYS[currentExam];
   const gradeKey = getGradeKey(key);
-  const batch = window.db.batch();
+  const batch = scoreDb.batch();
   let count = 0;
 
   document.querySelectorAll('.score-field').forEach(el=>{
@@ -8782,7 +8831,7 @@ async function saveAllScores(){
     const gradeEl = document.querySelector(`.grade-field[data-id="${id}"]`);
     const score = el.value !== '' ? parseInt(el.value) : null;
     const grade = gradeEl?.value ? parseInt(gradeEl.value) : null;
-    batch.set(window.db.collection('score_records').doc(id), {
+    batch.set(scoreDb.collection('score_records').doc(id), {
       [key]: score,
       [gradeKey]: grade,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -8930,7 +8979,7 @@ function selectExam(idx, btn){
 async function loadExamFileNames(examIdx){
   try{
     const key = ['exam_1mid','exam_1fin','exam_2mid','exam_2fin'][examIdx];
-    const doc = await window.db.collection('settings').doc('score_upload_history').get({source:'server'});
+    const doc = await scoreDb.collection('settings').doc('score_upload_history').get({source:'server'});
     if(doc.exists){
       const data = doc.data();
       const byExam = data.byExam || {};
@@ -9187,12 +9236,12 @@ async function saveStudent(){
   if(!name){ alert('이름을 입력해 주세요.'); return; }
   try{
     if(editingStudentId){
-      await window.db.collection('score_students').doc(editingStudentId).update({name,school,grade,teacher,subject});
+      await scoreDb.collection('score_students').doc(editingStudentId).update({name,school,grade,teacher,subject});
       const s = students.find(s=>s.id===editingStudentId);
       if(s){ s.name=name; s.school=school; s.grade=grade; s.teacher=teacher; s.subject=subject; }
     } else {
       const order = students.length + 1;
-      const ref = await window.db.collection('score_students').add({name,school,grade,teacher,subject,order,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      const ref = await scoreDb.collection('score_students').add({name,school,grade,teacher,subject,order,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       students.push({id:ref.id,name,school,grade,teacher,subject,order,exam_1mid:null,exam_1fin:null,exam_2mid:null,exam_2fin:null,grade_1mid:null,grade_1fin:null,grade_2mid:null,grade_2fin:null});
     }
     closeStudentModal();
@@ -9204,8 +9253,8 @@ async function saveStudent(){
 async function deleteStudent(id, name){
   if(!confirm(`${name} 학생을 삭제할까요?`)) return;
   try{
-    await window.db.collection('score_students').doc(id).delete();
-    await window.db.collection('score_records').doc(id).delete();
+    await scoreDb.collection('score_students').doc(id).delete();
+    await scoreDb.collection('score_records').doc(id).delete();
     students = students.filter(s=>s.id!==id);
     renderStudentList();
     renderAdminTableFull();
@@ -9251,20 +9300,20 @@ async function saveTeacherName(oldName){
     if(idx >= 0) TEACHERS_LIST[idx] = newName;
 
     // Firebase: 해당 선생님 담당 학생/반 일괄 업데이트
-    const batch = window.db.batch();
+    const batch = scoreDb.batch();
     students.filter(s=>s.teacher===oldName).forEach(s=>{
       s.teacher = newName;
-      batch.update(window.db.collection('score_students').doc(s.id), {teacher: newName});
+      batch.update(scoreDb.collection('score_students').doc(s.id), {teacher: newName});
     });
     classes.filter(c=>c.teacher===oldName).forEach(c=>{
       c.teacher = newName;
-      batch.update(window.db.collection('score_classes').doc(c.id), {teacher: newName});
+      batch.update(scoreDb.collection('score_classes').doc(c.id), {teacher: newName});
     });
     // PINS 업데이트
     if(PINS[oldName] !== undefined){
       PINS[newName] = PINS[oldName];
       delete PINS[oldName];
-      await window.db.collection('settings').doc('score_pins').set(PINS);
+      await scoreDb.collection('settings').doc('score_pins').set(PINS);
     }
     await batch.commit();
 
@@ -9290,15 +9339,15 @@ async function deleteTeacher(name){
     if(idx >= 0) TEACHERS_LIST.splice(idx, 1);
 
     // 담당 학생 teacher 필드 초기화
-    const batch = window.db.batch();
+    const batch = scoreDb.batch();
     students.filter(s=>s.teacher===name).forEach(s=>{
       s.teacher = '';
-      batch.update(window.db.collection('score_students').doc(s.id), {teacher: ''});
+      batch.update(scoreDb.collection('score_students').doc(s.id), {teacher: ''});
     });
     await batch.commit();
 
     // PIN 삭제
-    if(PINS[name]){ delete PINS[name]; await window.db.collection('settings').doc('score_pins').set(PINS); }
+    if(PINS[name]){ delete PINS[name]; await scoreDb.collection('settings').doc('score_pins').set(PINS); }
     if(AVATARS[name]) delete AVATARS[name];
 
     alert(`${name} 삭제 완료.`);
@@ -9352,11 +9401,11 @@ async function saveClass(){
   if(!name){ alert('반 이름을 입력해 주세요.'); return; }
   try{
     if(editingClassId){
-      await window.db.collection('score_classes').doc(editingClassId).update({name,teacher,grade});
+      await scoreDb.collection('score_classes').doc(editingClassId).update({name,teacher,grade});
       const c = classes.find(c=>c.id===editingClassId);
       if(c){ c.name=name; c.teacher=teacher; c.grade=grade; }
     } else {
-      const ref = await window.db.collection('score_classes').add({name,teacher,grade,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      const ref = await scoreDb.collection('score_classes').add({name,teacher,grade,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       classes.push({id:ref.id,name,teacher,grade});
     }
     closeClassModal();
@@ -9366,7 +9415,7 @@ async function saveClass(){
 async function deleteClass(id, name){
   if(!confirm(`${name} 반을 삭제할까요?`)) return;
   try{
-    await window.db.collection('score_classes').doc(id).delete();
+    await scoreDb.collection('score_classes').doc(id).delete();
     classes = classes.filter(c=>c.id!==id);
     renderClassList();
   }catch(e){ alert('삭제 중 오류.'); console.error(e); }
@@ -9389,7 +9438,7 @@ async function savePin(user){
   const val = input.value.trim();
   if(val.length!==4||!/^\d+$/.test(val)){ alert('4자리 숫자로 입력해 주세요.'); return; }
   PINS[user] = val;
-  await window.db.collection('settings').doc('score_pins').set(PINS);
+  await scoreDb.collection('settings').doc('score_pins').set(PINS);
   alert(`${user} PIN 변경 완료!`);
 }
 
@@ -9980,8 +10029,8 @@ async function deleteStudentById(id, name, subject){
   const label = subject ? `${name}(${subject})` : name;
   if(!confirm(`${label} 학생을 삭제할까요?\n성적 데이터도 함께 삭제됩니다.`)) return;
   try{
-    await window.db.collection('score_students').doc(id).delete();
-    await window.db.collection('score_records').doc(id).delete();
+    await scoreDb.collection('score_students').doc(id).delete();
+    await scoreDb.collection('score_records').doc(id).delete();
     students = students.filter(s=>s.id!==id);
     renderStudentList();
     renderAdminTableFull();
@@ -10016,10 +10065,10 @@ async function deleteByClass(){
 이 작업은 되돌릴 수 없습니다.`)) return;
 
   try{
-    const batch = window.db.batch();
+    const batch = scoreDb.batch();
     targets.forEach(s=>{
-      batch.delete(window.db.collection('score_students').doc(s.id));
-      batch.delete(window.db.collection('score_records').doc(s.id));
+      batch.delete(scoreDb.collection('score_students').doc(s.id));
+      batch.delete(scoreDb.collection('score_records').doc(s.id));
     });
     await batch.commit();
     students = students.filter(s=>s.teacher!==(cls?.teacher||''));
@@ -10043,10 +10092,10 @@ async function deleteAllStudents(){
     // Firestore batch는 500개 제한이므로 청크 처리
     const chunkSize = 400;
     for(let i=0; i<students.length; i+=chunkSize){
-      const batch = window.db.batch();
+      const batch = scoreDb.batch();
       students.slice(i, i+chunkSize).forEach(s=>{
-        batch.delete(window.db.collection('score_students').doc(s.id));
-        batch.delete(window.db.collection('score_records').doc(s.id));
+        batch.delete(scoreDb.collection('score_students').doc(s.id));
+        batch.delete(scoreDb.collection('score_records').doc(s.id));
       });
       await batch.commit();
     }
@@ -10084,7 +10133,7 @@ async function confirmExcelUpload(){
 
   try{
     for(const s of excelParsedStudents){
-      const ref = await window.db.collection('score_students').add({
+      const ref = await scoreDb.collection('score_students').add({
         name: s.name,
         school: s.school,
         grade: s.grade,
@@ -10246,7 +10295,7 @@ function downloadStudentExcel(targetTeacher){
 
 async function loadScoreForm(){
   try{
-    const doc = await window.db.collection('settings').doc('score_form').get();
+    const doc = await scoreDb.collection('settings').doc('score_form').get();
     if(doc.exists){
       scoreFormData = doc.data();
       updateFormUI();
@@ -10267,7 +10316,7 @@ async function handleFormUploadMain(input){
     const now = new Date().toLocaleDateString('ko-KR');
     scoreFormData = {name:file.name, base64, size:file.size, uploadedAt:now};
     try{
-      await window.db.collection('settings').doc('score_form').set(scoreFormData);
+      await scoreDb.collection('settings').doc('score_form').set(scoreFormData);
       updateFormUI();
       alert('✅ 폼 업로드 완료!');
     }catch(err){ alert('업로드 오류.'); console.error(err); }
@@ -10305,7 +10354,7 @@ async function handleFormUpload(input){
     const now = new Date().toLocaleDateString('ko-KR');
     scoreFormData = { name: file.name, base64, size: file.size, uploadedAt: now };
     try{
-      await window.db.collection('settings').doc('score_form').set(scoreFormData);
+      await scoreDb.collection('settings').doc('score_form').set(scoreFormData);
       updateFormUI();
       alert('✅ 폼 업로드 완료!');
     }catch(err){
@@ -10320,7 +10369,7 @@ async function handleFormUpload(input){
 async function deleteUploadedForm(){
   if(!confirm('업로드된 폼을 삭제할까요?')) return;
   try{
-    await window.db.collection('settings').doc('score_form').delete();
+    await scoreDb.collection('settings').doc('score_form').delete();
     scoreFormData = null;
     const barName2 = document.getElementById('form-uploaded-name');
     const barInfo2 = document.getElementById('form-uploaded-info');
