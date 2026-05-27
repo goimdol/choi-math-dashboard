@@ -6229,23 +6229,26 @@ function renderAdminTableFull(){
   const q = document.getElementById('admin-search')?.value.trim() || '';
   const key = EXAM_KEYS[currentExam];
   const GRADE_ORDER = {'중1':1,'중2':2,'중3':3,'고1':4,'고2':5,'고3':6};
-  const subjectFilter = document.getElementById('subject-filter')?.value || '전체';
 
-  // 과목 드롭다운 업데이트 (기본 과목 + Firebase 과목 합산)
+  // 과목 드롭다운 업데이트 (기본 과목 + Firebase 과목 합산) - 먼저 실행
   const BASE_SUBJECTS_FILTER = ['공수1','공수2','기하','확통','미적분1'];
   const allSubjects = [...new Set([...BASE_SUBJECTS_FILTER, ...students.map(s=>s.subject||'').filter(Boolean)])].sort();
   const subjectSel = document.getElementById('subject-filter');
   if(subjectSel){
-    const prev = subjectSel.value;
+    const prev = subjectSel.value || '전체';
     const currentOpts = Array.from(subjectSel.options).map(o=>o.value).filter(v=>v!=='전체');
     const needsUpdate = JSON.stringify(currentOpts) !== JSON.stringify(allSubjects);
     if(needsUpdate){
       subjectSel.innerHTML = '<option value="전체">📚 전체 과목</option>' +
         allSubjects.map(s=>`<option value="${s}">${s}</option>`).join('');
-      subjectSel.value = allSubjects.includes(prev) ? prev : '전체';
     }
+    subjectSel.value = allSubjects.includes(prev) ? prev : '전체';
   }
-  // 과목별 다운로드 드롭박스도 동기화 (기본 과목 + Firebase 과목 합산)
+
+  // 드롭박스 동기화 후 현재 선택값 읽기
+  const subjectFilter = document.getElementById('subject-filter')?.value || '전체';
+
+  // 과목별 다운로드 드롭박스도 동기화
   const subDownSel = document.getElementById('subject-download-select');
   if(subDownSel){
     const BASE_SUBJECTS = ['공수1','공수2','기하','확통','미적분1'];
@@ -6304,7 +6307,11 @@ function renderAdminTableFull(){
     </tr>`;
   }).join('');
   updateStats(); // 항상 전체 students 기준으로 통계 표시
-  }catch(e){ console.error('renderAdminTableFull 오류:', e); }
+  }catch(e){
+    console.error('renderAdminTableFull 오류:', e);
+    const tbody = document.getElementById('admin-tbody');
+    if(tbody) tbody.innerHTML = `<tr><td colspan="10" style="color:red;padding:20px;">오류: ${e.message}</td></tr>`;
+  }
 }
 
 function updateStats(){
