@@ -355,7 +355,7 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
           <button class="exam-tab" onclick="selectExam(2,this)">2학기 중간</button>
           <button class="exam-tab" onclick="selectExam(3,this)">2학기 기말</button>
         </div>
-        <span id="last-upload-filenames-exam" style="font-size:11px;color:#1D4ED8;font-weight:600;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:4px 10px;display:none;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📁</span>
+        <span id="last-upload-filenames-exam" style="font-size:11px;color:#1D4ED8;font-weight:600;display:none;flex-wrap:wrap;gap:4px;"></span>
       </div>
     </div>
 
@@ -6254,7 +6254,7 @@ function showUploadFileNames(fileNames){
   const el = document.getElementById('last-upload-filenames-exam');
   if(!el) return;
   if(!fileNames || fileNames.length === 0){ el.style.display='none'; el.innerHTML=''; return; }
-  el.style.display = '';
+  el.style.display = 'flex';
   el.innerHTML = fileNames.map(name=>`
     <span style="display:inline-flex;align-items:center;gap:4px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:3px 8px;font-size:11px;color:#1D4ED8;font-weight:600;">
       📁 ${name}
@@ -6308,7 +6308,11 @@ async function loadData(){
           const data = histDoc.data();
           const byExam = data.byExam || {};
           const key = ['exam_1mid','exam_1fin','exam_2mid','exam_2fin'][currentExam];
-          const names = byExam[key] || (key==='exam_1mid' ? (data.fileNames||[]) : []);
+          // byExam에 없으면 fileNames 전체 배열 fallback (1학기 중간에만)
+          const names = (byExam[key] && byExam[key].length > 0)
+            ? byExam[key]
+            : (key==='exam_1mid' ? (data.fileNames||[]) : []);
+          console.log('📁 파일명 로드:', names, 'byExam:', byExam[key], 'fileNames:', data.fileNames);
           showUploadFileNames(names);
         }
       }catch(e){ console.error('파일명 로드 오류', e); }
@@ -6731,7 +6735,7 @@ async function confirmScoreUpload(){
         const merged = [...new Set([...prev, ...fileNames])];
         existing[examKey] = merged;
         await db.collection('settings').doc('score_upload_history').set(
-          {byExam: existing, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
+          {byExam: existing, fileNames: merged, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
           {merge: true}
         );
         showUploadFileNames(merged);
@@ -7363,7 +7367,9 @@ async function loadExamFileNames(examIdx){
     if(doc.exists){
       const data = doc.data();
       const byExam = data.byExam || {};
-      const names = byExam[key] || (key==='exam_1mid' ? (data.fileNames||[]) : []);
+      const names = (byExam[key] && byExam[key].length > 0)
+        ? byExam[key]
+        : (key==='exam_1mid' ? (data.fileNames||[]) : []);
       showUploadFileNames(names);
     } else {
       showUploadFileNames([]);
@@ -8552,11 +8558,61 @@ async function confirmExcelUpload(){
 
 
 // ──────────────────────────────────────────
-// 성적 폼 업로드 / 다운로드 (Firebase Storage 대신 Firestore base64)
+// 성적 폼 업로드 / 다운로드
 // ──────────────────────────────────────────
-let scoreFormData = null; // {name, base64, size, uploadedAt}
+let scoreFormData = null;
 
-async 
+async function loadScoreForm(){
+  try{
+    const doc = await db.collection('settings').doc('score_form').get();
+    if(doc.exists){ scoreFormData = doc.data(); updateFormUI(); }
+  }catch(e){ console.error(e); }
+}
+
+async function handleFormUploadMain(input){
+  const file = input.files[0]; if(!file) return; input.value='';
+  if(!file.name.endsWith('.xlsx')){ alert('.xlsx 파일만 가능합니다.'); return; }
+  if(file.size > 2*1024*1024){ alert('2MB 이하 파일만 가능합니다.'); return; }
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    const base64 = e.target.result;
+    const now = new Date().toLocaleDateString('ko-KR');
+    scoreFormData = {name:file.name, base64, size:file.size, uploadedAt:now};
+    try{
+      await db.collection('settings').doc('score_form').set(scoreFormData);
+      updateFormUI(); alert('✅ 폼 업로드 완료!');
+    }catch(err){ alert('업로드 오류.'); console.error(err); }
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateFormUI(){
+  if(!scoreFormData) return;
+  const barName = document.getElementById('form-uploaded-name');
+  const barInfo = document.getElementById('form-uploaded-info');
+  if(barName) barName.textContent = scoreFormData.name||'성적입력폼.xlsx';
+  if(barInfo) barInfo.textContent = (scoreFormData.uploadedAt||'') + ' · ' + Math.round((scoreFormData.size||0)/1024) + 'KB';
+}
+
+async function deleteUploadedForm(){
+  if(!confirm('업로드된 폼을 삭제할까요?')) return;
+  try{
+    await db.collection('settings').doc('score_form').delete();
+    scoreFormData = null;
+    const barName = document.getElementById('form-uploaded-name');
+    if(barName) barName.textContent = '업로드된 폼 없음';
+    alert('삭제 완료.');
+  }catch(e){ alert('삭제 중 오류.'); console.error(e); }
+}
+
+function downloadScoreForm(){
+  if(!scoreFormData || !scoreFormData.base64){ alert('다운로드할 폼이 없습니다.'); return; }
+  const a = document.createElement('a');
+  a.href = scoreFormData.base64;
+  a.download = scoreFormData.name || '최선생_성적입력폼.xlsx';
+  a.click();
+}
+
 // ──────────────────────────────────────────
 // 학생 명단 엑셀 다운로드 (학년별 파스텔 색상)
 // ──────────────────────────────────────────
