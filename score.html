@@ -6167,9 +6167,11 @@ function showUploadFileNames(fileNames){
 // ──────────────────────────────────────────
 async function loadData(){
   try{
-    // 학생 목록
-    const sSnap = await db.collection('score_students').orderBy('order').get();
+    // 학생 목록 (orderBy 제거 → JS에서 정렬, Firestore 인덱스 오류 방지)
+    const sSnap = await db.collection('score_students').get();
     students = sSnap.docs.map(d=>({id:d.id,...d.data(), subject:d.data().subject||''}));
+    // order 필드 기준 정렬
+    students.sort((a,b)=>(a.order||0)-(b.order||0));
 
     // 반 목록
     const cSnap = await db.collection('score_classes').get();
