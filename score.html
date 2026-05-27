@@ -6226,18 +6226,18 @@ async function deleteUploadFile(fileName){
     students = students.filter(s=>!(s.source==='score_upload' && s.uploadFile && s.uploadFile.includes(fileName)));
 
     // 4. Firebase score_upload_history에서 파일명 제거
-    const histDoc = await db.collection('settings').doc('score_upload_history').get({source:'server'});
+    const histDoc = await db.collection('settings').doc('score_upload_history').get();
     if(histDoc.exists){
       const data = histDoc.data();
       const byExam = data.byExam || {};
-      if(byExam[examKey]){
-        byExam[examKey] = byExam[examKey].filter(n=>n!==fileName);
-        await db.collection('settings').doc('score_upload_history').set(
-          {byExam, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
-          {merge:true}
-        );
-        showUploadFileNames(byExam[examKey]);
-      }
+      byExam[examKey] = (byExam[examKey] || []).filter(n=>n!==fileName);
+      await db.collection('settings').doc('score_upload_history').set(
+        {byExam, updatedAt: firebase.firestore.FieldValue.serverTimestamp()},
+        {merge:true}
+      );
+      showUploadFileNames(byExam[examKey]);
+    } else {
+      showUploadFileNames([]);
     }
 
     alert(`✅ "${fileName}" 삭제 완료!`+
@@ -7359,7 +7359,7 @@ function selectExam(idx, btn){
 async function loadExamFileNames(examIdx){
   try{
     const key = ['exam_1mid','exam_1fin','exam_2mid','exam_2fin'][examIdx];
-    const doc = await db.collection('settings').doc('score_upload_history').get({source:'server'});
+    const doc = await db.collection('settings').doc('score_upload_history').get();
     if(doc.exists){
       const data = doc.data();
       const byExam = data.byExam || {};
