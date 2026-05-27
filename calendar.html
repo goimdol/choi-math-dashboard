@@ -1012,7 +1012,7 @@ function showEvPopup(ev,el){
   if(currentUser==='원장'){
     actions.innerHTML=`<button class="ev-popup-edit-btn">수정</button><button class="ev-popup-del-btn">삭제</button>`;
     actions.querySelector('.ev-popup-edit-btn').onclick=()=>{closePopup();openEditModal(ev.id);};
-    actions.querySelector('.ev-popup-del-btn').onclick=()=>{closePopup();if(confirm('이 일정을 삭제할까요?'))db.collection('calendar_events').doc(ev.id).delete();};
+    actions.querySelector('.ev-popup-del-btn').onclick=()=>{closePopup();deleteEvent(ev);};
   }else{actions.innerHTML='';}
   const rect=el.getBoundingClientRect();
   const popup=document.getElementById('ev-popup');
@@ -1021,6 +1021,32 @@ function showEvPopup(ev,el){
   popup.classList.add('open');
 }
 function closePopup(){document.getElementById('ev-popup').classList.remove('open');}
+
+async function deleteEvent(ev){
+  if(ev.repeatGroupId){
+    // 반복 일정 - 선택 옵션
+    const choice = confirm(
+      '반복 일정입니다.\n\n확인 = 반복 일정 전체 삭제\n취소 = 이 일정만 삭제'
+    );
+    if(choice){
+      // 전체 삭제
+      if(!confirm('반복 일정 전체를 삭제할까요?')) return;
+      const snap = await db.collection('calendar_events')
+        .where('repeatGroupId','==',ev.repeatGroupId).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    } else {
+      // 이 일정만 삭제
+      if(!confirm('이 일정만 삭제할까요?')) return;
+      db.collection('calendar_events').doc(ev.id).delete();
+    }
+  } else {
+    // 일반 일정
+    if(!confirm('이 일정을 삭제할까요?')) return;
+    db.collection('calendar_events').doc(ev.id).delete();
+  }
+}
 document.getElementById('ev-popup-close').addEventListener('click',closePopup);
 document.addEventListener('click',e=>{
   const popup=document.getElementById('ev-popup');
