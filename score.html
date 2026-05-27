@@ -6026,21 +6026,51 @@ tbody tr:nth-child(even):hover{background:#F8FAFF;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js" defer></script>
+<script defer>
+// ──────────────────────────────────────────
+// Firebase 초기화 (defer로 SDK 로드 후 실행 보장)
+// ──────────────────────────────────────────
+function initApp(){
+  if(typeof firebase === 'undefined'){
+    setTimeout(initApp, 100);
+    return;
+  }
+  if(!firebase.apps.length){
+    firebase.initializeApp({
+      apiKey:"AIzaSyC6_EjWngSf_EQuqYP7j_rkC53fZUk6UCs",
+      authDomain:"choi-math-memo-1d6e6.firebaseapp.com",
+      projectId:"choi-math-memo-1d6e6",
+      storageBucket:"choi-math-memo-1d6e6.firebasestorage.app",
+      messagingSenderId:"805131169031",
+      appId:"1:805131169031:web:ed09dc28e2ae030f9329a2"
+    });
+  }
+  window.db = firebase.firestore();
+  loadPins();
+  loadScoreForm();
+  // subject-filter 이벤트 한 번만 등록
+  const sf = document.getElementById('subject-filter');
+  if(sf) sf.addEventListener('change', function(){
+    currentSubjectFilter = this.value;
+    renderAdminTableFull();
+  });
+  const _savedUser = localStorage.getItem('score_last_user');
+  if(_savedUser){
+    loadPins().then(()=>{ applyLogin(_savedUser); });
+  }
+  document.getElementById('login-btn').addEventListener('click', doLogin);
+  document.getElementById('login-pin').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  const sf = document.getElementById('subject-filter');
+  if(sf) sf.addEventListener('change', function(){
+    currentSubjectFilter = this.value;
+    renderAdminTableFull();
+  });
+}
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
 <script>
-// ──────────────────────────────────────────
-// Firebase 초기화
-// ──────────────────────────────────────────
-firebase.initializeApp({
-  apiKey:"AIzaSyC6_EjWngSf_EQuqYP7j_rkC53fZUk6UCs",
-  authDomain:"choi-math-memo-1d6e6.firebaseapp.com",
-  projectId:"choi-math-memo-1d6e6",
-  storageBucket:"choi-math-memo-1d6e6.firebasestorage.app",
-  messagingSenderId:"805131169031",
-  appId:"1:805131169031:web:ed09dc28e2ae030f9329a2"
-});
-const db = firebase.firestore();
 
 // ──────────────────────────────────────────
 // 상태
@@ -6092,37 +6122,7 @@ async function loadPins(){
   return PINS;
 }
 
-loadPins();
-loadScoreForm();
-
-// subject-filter 이벤트 리스너 등록 (onchange 대신 안전한 방식)
-document.addEventListener('DOMContentLoaded', function(){
-  const sf = document.getElementById('subject-filter');
-  if(sf) sf.addEventListener('change', function(){
-    currentSubjectFilter = this.value;
-    renderAdminTableFull();
-  });
-});
-// DOMContentLoaded가 이미 지난 경우 직접 등록
-(function(){
-  const sf = document.getElementById('subject-filter');
-  if(sf) sf.addEventListener('change', function(){
-    currentSubjectFilter = this.value;
-    renderAdminTableFull();
-  });
-})();
-
-// 자동 로그인 (이전 세션 유지)
-const _savedUser = localStorage.getItem('score_last_user');
-if(_savedUser){
-  loadPins().then(()=>{
-    // PIN 로드 후 자동 로그인 시도 (PIN 없이 유지만)
-    applyLogin(_savedUser);
-  });
-}
-
-document.getElementById('login-btn').addEventListener('click', doLogin);
-document.getElementById('login-pin').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+// subject-filter 이벤트는 initApp에서 등록
 
 function doLogin(){
   const user = document.getElementById('login-user').value;
@@ -6312,7 +6312,7 @@ async function loadData(){
         }
       }catch(e){ console.error('파일명 로드 오류', e); }
     }
-    syncSubjectDropdowns(); // 드롭박스 동기화
+     // 드롭박스 동기화
   }catch(e){ console.error('loadData error:', e); }
 }
 
@@ -6327,33 +6327,6 @@ function renderAdminTable(){
 function getGradeKey(examKey){ return 'grade_'+examKey.replace('exam_',''); }
 
 // 과목 드롭박스 옵션만 동기화 (renderAdminTableFull 호출 없음)
-function syncSubjectDropdowns(){
-  const BASE_SUBJECTS = ['공수1','공수2','기하','확통','미적분1'];
-  const allSubjects = [...new Set([...BASE_SUBJECTS, ...students.map(s=>s.subject||'').filter(Boolean)])].sort();
-
-  const subjectSel = document.getElementById('subject-filter');
-  if(subjectSel){
-    // 기존 리스너 제거를 위해 cloneNode로 교체
-    const newSel = subjectSel.cloneNode(false);
-    newSel.innerHTML = '<option value="전체">📚 전체 과목</option>' +
-      allSubjects.map(s=>`<option value="${s}">${s}</option>`).join('');
-    newSel.value = allSubjects.includes(currentSubjectFilter) ? currentSubjectFilter : '전체';
-    newSel.addEventListener('change', function(){
-      currentSubjectFilter = this.value;
-      renderAdminTableFull();
-    });
-    subjectSel.parentNode.replaceChild(newSel, subjectSel);
-  }
-
-  const subDownSel = document.getElementById('subject-download-select');
-  if(subDownSel){
-    const mergedSubjects = [...new Set([...BASE_SUBJECTS, ...allSubjects])].sort();
-    subDownSel.innerHTML = '<option value="" disabled selected>📥 과목별 다운로드</option>' +
-      '<option value="전체">전체 과목</option>' +
-      mergedSubjects.map(s=>`<option value="${s}">${s}</option>`).join('');
-  }
-}
-
 function renderAdminTableFull(){
   try{
   const q = document.getElementById('admin-search')?.value.trim() || '';
@@ -6765,7 +6738,7 @@ async function confirmScoreUpload(){
     }
     cancelScoreUpload();
     renderMyStudentList();
-    if(isAdmin){ renderAdminTableFull(); updateStats(); syncSubjectDropdowns(); }
+    if(isAdmin){ renderAdminTableFull(); updateStats();  }
   }catch(e){ alert('저장 중 오류가 발생했습니다.'); console.error(e); }
   finally{
     btn.disabled=false; btn.textContent='✅ 저장';
